@@ -1,8 +1,8 @@
-# ![nvim-ai-coding](https://github.com/jayli/nvim-ai-coding/assets/188244/b70af918-ffe9-4f61-8048-7cf26795de6b)
+# ![nvim-ai-coding](https://github.com/jayli/nvim-ai-coding/assets/188244/88a28ce3-3240-4793-9637-ef046eaf269a)
 
 基于 chatgpt 写代码的 nvim 插件
 
-https://github.com/jayli/nvim-ai-coding/assets/188244/33a0d606-b445-448a-9c34-e297d530fc42
+https://github.com/jayli/nvim-ai-coding/assets/188244/e95beba9-843c-4122-b399-ce2b0684aa66
 
 ## 一）安装：
 
