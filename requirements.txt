@@ -1,0 +1,4 @@
+langchain
+requests
+openai
+
