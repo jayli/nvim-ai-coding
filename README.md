@@ -2,7 +2,7 @@
 
 基于 chatgpt 写代码的 nvim 插件
 
-https://github.com/jayli/nvim-ai-coding/assets/188244/e95beba9-843c-4122-b399-ce2b0684aa66
+https://github.com/jayli/nvim-ai-coding/assets/188244/337f0f5c-78b5-4ea1-a276-2868b12562f7
 
 ## 一）安装：
 
