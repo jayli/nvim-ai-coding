@@ -65,7 +65,7 @@ function! s:InputCallback(old_text, new_text)
     endif
     let prompt = s:get_prompt_new(question)
     redraw
-    echom "请等待 " . g:nvim_ai_llm . " 的响应..."
+    echom "请等待 ChatGPT(" . g:nvim_ai_llm . ") 的响应..."
     py3 vim.command("let ret = %s"% ai.just_do_it(vim.eval("prompt")))
     if type(ret) == type("") && ret == "{timeout}"
       call s:handle_timeout()
@@ -87,7 +87,7 @@ function! s:InputCallback(old_text, new_text)
     endif
     let prompt = s:get_prompt_modify(l:lines, question)
     redraw
-    echom "请等待 " . g:nvim_ai_llm . " 的响应..."
+    echom "请等待 ChatGPT(" . g:nvim_ai_llm . ") 的响应..."
     py3 vim.command("let ret = %s"% ai.just_do_it(vim.eval("prompt")))
     if type(ret) == type("") && ret == "{timeout}"
       call s:handle_timeout()
@@ -106,7 +106,7 @@ function! s:InputCallback(old_text, new_text)
 endfunction
 
 function! s:handle_timeout()
-  echom "调用超时！" 
+  echom "调用超时！"
   redraw
 endfunction
 
@@ -117,7 +117,7 @@ function! nvim_ai#run(line1, line2, range) range
   let s:range = a:range
   call nvim_ai#input#pop("", function("s:InputCallback"))
   redraw
-  echom "等待 " . g:nvim_ai_llm . " 初始化..."
+  echom "等待 ChatGPT(" . g:nvim_ai_llm . ") 初始化..."
   call s:prepare_python()
   return
 endfunction
