@@ -61,6 +61,7 @@
 列出目录中的文件和文件夹，可以使用递归的方式
 基于 plotly 实现一个柱状图，使用 tkinter 作为窗口包装器
 基于 geopandas 和 matplotlib 绘制一张世界地图
+基于 pyecharts 显示中国地图
 
 
 ---------Node---------
