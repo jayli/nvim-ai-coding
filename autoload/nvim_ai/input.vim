@@ -186,8 +186,8 @@ endfunction
 function! s:close_menu()
   " 关闭menu
   if pumvisible()
-    silent! noa call feedkeys("\<C-C>", "in")
-    silent! noa call feedkeys("a", "n")
+    silent! noa call feedkeys("\<C-X>\<C-Y>", "in")
+    " silent! noa call feedkeys("a", "n")
     call s:menu_clear()
   endif
 endfunction
