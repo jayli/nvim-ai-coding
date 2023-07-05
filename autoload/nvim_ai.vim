@@ -71,7 +71,7 @@ function! s:InputCallback(old_text, new_text)
       call s:handle_timeout()
       return
     endif
-    call nvim_ai#append(s:line1, ret)
+    call nvim_ai#append(s:line1 + 1, ret)
 
     echom "done!"
     redraw
