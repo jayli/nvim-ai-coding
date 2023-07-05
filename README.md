@@ -25,7 +25,7 @@ xmap co <Plug>AICoding
 本地 python 3.9 及以上版本，打开命令行执行
 
 ```shell
-pip install requests langchain openai
+pip install pynvim requests langchain openai
 ```
 
 或者在插件跟目录下执行:

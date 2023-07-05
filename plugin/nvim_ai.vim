@@ -36,4 +36,8 @@ if !exists("g:nvim_ai_custom_api")
   let g:nvim_ai_custom_api = ""
 endif
 
+if !exists("g:nvim_ai_stream")
+  let g:nvim_ai_stream = 0
+endif
+
 " vim:ts=2:sw=2:sts=2

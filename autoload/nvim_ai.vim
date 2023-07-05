@@ -20,7 +20,8 @@ function! s:prepare_python()
 
     py3 ai.llm_init(llm_type=vim.eval("g:nvim_ai_llm"),
                   \ api_key=vim.eval("g:nvim_ai_apikey"),
-                  \ custom_api=vim.eval("g:nvim_ai_custom_api"))
+                  \ custom_api=vim.eval("g:nvim_ai_custom_api"),
+                  \ stream=vim.eval("g:nvim_ai_stream"))
     let g:ai_python3_ready = 2
     return v:true
   endif
@@ -66,12 +67,18 @@ function! s:InputCallback(old_text, new_text)
     let prompt = s:get_prompt_new(question)
     redraw
     echom "请等待 ChatGPT(" . g:nvim_ai_llm . ") 的响应..."
-    py3 vim.command("let ret = %s"% ai.just_do_it(vim.eval("prompt")))
-    if type(ret) == type("") && ret == "{timeout}"
-      call s:handle_timeout()
-      return
+    if g:nvim_ai_stream == 0
+      py3 vim.command("let ret = %s"% ai.just_do_it(vim.eval("prompt")))
+      if type(ret) == type("") && ret == "{timeout}"
+        call s:handle_timeout()
+        return
+      endif
+      call nvim_ai#append(s:line1 + 1, ret)
     endif
-    call nvim_ai#append(s:line1 + 1, ret)
+
+    if g:nvim_ai_stream == 1
+      py3 ai.just_do_it(vim.eval("prompt"))
+    endif
 
     echom "done!"
     redraw
@@ -153,6 +160,10 @@ function! nvim_ai#append(start_line, lines)
     redraw
     sleep 60ms
   endfor
+endfunction
+
+function! nvim_ai#insert(chunk)
+  call execute("normal! a" . a:chunk)
 endfunction
 
 function! s:is_code_warpper(line)

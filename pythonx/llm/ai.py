@@ -1,27 +1,44 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 import json
-#import vim
 from typing import Any, List, Dict, Mapping, Optional
 from langchain.llms.base import LLM
 from langchain.llms import OpenAI
 import threading
 import requests
+# https://github.com/roxma/nvim-ascript/blob/abc89587d6d6c83eb28d62669f0111bb77c00d07/autoload/ascript.vim#L32
+import vim
 
 # 全局llm
 llm = None
 
-# 子进程
-proc = None
+
+# 是否支持流式输出
+stream_output = False
 
 # 超时时间，单位s
 timeout = 13
+
+def handler(script):
+
+    if script == "[DONE]":
+        vim.command("echom '[DONE]'")
+    # elif script == "normal a":
+    #     vim.command("normal! a")
+    else:
+        # vim.command("call nvim_ai#insert('" + script + "')")
+        vim.command("call nvim_ai#append(1, '" + script + "')")
+        vim.command("redraw")
+        # vim.call("nvim_ai#insert", script)
+        # vim.command("call execute('normal! a" + script + "')")
+        # vim.command("normal! redraw")
 
 class CustomLLM(LLM):
     logging: bool = False
     output_keys: List[str] = ["output"]
     custom_api: str = ""
     api_key: str = ""
+    stream_output: bool = False
 
     # 支持 openai, apispace, api2d, custom
     llm_type: str = "apispace"
@@ -42,6 +59,7 @@ class CustomLLM(LLM):
         stop: Optional[List[str]] = None,
         run_manager: any = None,
     ) -> str:
+
         self.log('----------' + self._llm_type + '----------> llm._call()')
         self.log(prompt)
 
@@ -86,29 +104,74 @@ class CustomLLM(LLM):
             payload = {
                     "model": "gpt-3.5-turbo-0613",
                     "messages": [
-                            {
-                                "role": "user",
-                                "content": prompt
-                            }
-                        ],
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
                     "safe_mode": False
-                }
+                    }
 
             headers = {
-                    'Authorization': "Bearer " + self.api_key,
-                    'Content-Type': 'application/json'
+                'Authorization': "Bearer " + self.api_key,
+                'Content-Type': 'application/json'
             }
-            response = requests.request("POST", url, data=json.dumps(payload), headers=headers)
-            result = json.loads(response.text)
-            if "object" in result and result["object"] == "error":
-                return result["message"]
+
+            # 非流式输出
+            if self.stream_output == False:
+                response = requests.request("POST", url, data=json.dumps(payload), headers=headers)
+                result = json.loads(response.text)
+                if "object" in result and result["object"] == "error":
+                    return result["message"]
+                else:
+                    return result['choices'][0]["message"]["content"]
+
+            # 流式输出
             else:
-                return result['choices'][0]["message"]["content"]
+                url = "http://js-perf.cn:7001/test/chatgpt"
+                response = requests.request("POST", url, data=json.dumps(payload), headers=headers, stream=True)
+                chunk_chars = ""
+                try:
+                    for chunk in response.iter_content(chunk_size=500):
+                        chunk_chars = self.get_chars_from_chunk(chunk)
+
+                        if chunk_chars == "[DONE]":
+                            vim.async_call(handler, chunk_chars)
+                            return ""
+                        else:
+                            command_str = 'call nvim_ai#insert_chunk("' + chunk_chars.replace("\\'", "''") + '")'
+                            letters = chunk_chars.replace("\\'", "''")
+                            # vim.async_call(handler, command_str)
+                            # vim.async_call(lambda: vim.command(command_str, async=True))
+                            vim.async_call(handler, letters)
+                            # vim.command('call nvim_ai#insert_chunk("' + chunk_chars.replace("\\'", "''") + '")')
+                except KeyboardInterrupt:
+                    print('Interrupted')
+
+                return ""
 
         # openai
         elif self._llm_type == "openai":
             api_key = self.api_key
             pass
+
+    def parse_chunk_from_api2d(self, text):
+        prefix = "data: "
+        output = text
+        if text.startswith(prefix):
+            output = text[len(prefix):]
+        return output.rstrip('\n')
+
+    def get_chars_from_chunk(self, chunk):
+        chunk_str = self.parse_chunk_from_api2d(chunk.decode("utf-8"))
+        if chunk_str.rstrip() == "[DONE]":
+            return "[DONE]"
+        try:
+            result = json.loads(chunk_str)
+            return result["choices"][0]["delta"]["content"]
+        except json.JSONDecodeError as e:
+            print(e)
+
 
     @property
     def _identifying_params(self) -> Mapping[str, Any]:
@@ -116,12 +179,18 @@ class CustomLLM(LLM):
         return {"n": 10}
 
 
-def llm_init(llm_type="", api_key="", custom_api=""):
-    global llm
+def llm_init(llm_type="", api_key="", custom_api="", stream=0):
+    global llm, stream_output
+
+    if stream == "1":
+        stream_output = True
+    else:
+        stream_output = False
+
     if llm_type == "openai":
         llm = OpenAI(openai_api_key=api_key, temperature=0.9)
     else:
-        llm = CustomLLM(llm_type=llm_type, api_key=api_key, custom_api=custom_api)
+        llm = CustomLLM(llm_type=llm_type, api_key=api_key, custom_api=custom_api, stream_output=stream_output)
 
 def llm_request(prompt, llm):
     prompts = "\n".join(prompt)
@@ -156,7 +225,7 @@ def just_do_it(prompt):
     return thread.result
 
 if __name__ == '__main__':
-    llm_init(llm_type="custom", custom_api="http://127.0.0.1:8000")
+    llm_init(llm_type="api2d", api_key="sdfsdfdsfsf", stream="1")
     print(just_do_it("写一段简单的 python 代码，打印一个 helloworld"))
 
 # vim:ts=4:sw=4:sts=4
