@@ -366,3 +366,5 @@ function! s:goto_winnr(winnr) abort
   noautocmd execute cmd
   call execute('redraw','silent!')
 endfunction
+
+" vim:ts=2:sw=2:sts=2

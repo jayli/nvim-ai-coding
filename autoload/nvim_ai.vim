@@ -117,7 +117,42 @@ function! s:handle_timeout()
   redraw
 endfunction
 
+function! s:str2list(str)
+  if type(a:str) ==# v:t_list
+    return a:str
+  endif
+  let l:index = 0
+  let l:arr = []
+  while l:index < strlen(a:str)
+    call add(l:arr, a:str[l:index])
+    let l:index += 1
+  endwhile
+  return l:arr
+endfunction
+
 function! nvim_ai#run(line1, line2, range) range
+
+  if g:nvim_ai_stream == 1
+    let aa = ["我","是","基","于","g","p","t","大","模","型","回","答","问","题","\n","\n","哈","哈","哈"]
+
+    " call feedkeys("i", "n")
+    for letter in aa
+      " call feedkeys("a" . letter, "n")
+      " call feedkeys(letter, "i")
+      exec "normal! a" . letter
+      redraw
+      " sleep 10ms
+    endfor
+    redraw
+
+    return
+  endif
+
+
+
+
+
+
   if !s:llm_check() | return | endif
   let s:line1 = a:line1
   let s:line2 = a:line2
@@ -163,7 +198,9 @@ function! nvim_ai#append(start_line, lines)
 endfunction
 
 function! nvim_ai#insert(chunk)
-  call execute("normal! a" . a:chunk)
+  call feedkeys("a我\<ESC>","n")
+  call execute('redraw','silent!')
+  " . a:chunk
 endfunction
 
 function! s:is_code_warpper(line)
@@ -214,3 +251,4 @@ function! nvim_ai#get_all_prompt()
 endfunction
 
 
+" vim:ts=2:sw=2:sts=2

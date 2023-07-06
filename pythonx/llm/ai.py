@@ -12,7 +12,6 @@ import vim
 # 全局llm
 llm = None
 
-
 # 是否支持流式输出
 stream_output = False
 
@@ -20,6 +19,7 @@ stream_output = False
 timeout = 13
 
 def handler(script):
+    global nvim
 
     if script == "[DONE]":
         vim.command("echom '[DONE]'")
@@ -27,9 +27,9 @@ def handler(script):
     #     vim.command("normal! a")
     else:
         # vim.command("call nvim_ai#insert('" + script + "')")
-        vim.command("call nvim_ai#append(1, '" + script + "')")
-        vim.command("redraw")
-        # vim.call("nvim_ai#insert", script)
+        # vim.command("call nvim_ai#append(1, '" + script + "')")
+        # vim.command("redraw")
+        vim.call("nvim_ai#insert", script)
         # vim.command("call execute('normal! a" + script + "')")
         # vim.command("normal! redraw")
 
@@ -141,10 +141,7 @@ class CustomLLM(LLM):
                         else:
                             command_str = 'call nvim_ai#insert_chunk("' + chunk_chars.replace("\\'", "''") + '")'
                             letters = chunk_chars.replace("\\'", "''")
-                            # vim.async_call(handler, command_str)
-                            # vim.async_call(lambda: vim.command(command_str, async=True))
                             vim.async_call(handler, letters)
-                            # vim.command('call nvim_ai#insert_chunk("' + chunk_chars.replace("\\'", "''") + '")')
                 except KeyboardInterrupt:
                     print('Interrupted')
 
