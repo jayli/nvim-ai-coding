@@ -1,6 +1,8 @@
 let s:line1 = 0
 let s:line2 = 0
 let s:range = 0
+" 临时变量，给 python 用的
+let g:nvim_ai_range = 0
 
 function! s:prepare_python()
   if get(g:, 'ai_python3_ready') == 2
@@ -94,13 +96,19 @@ function! s:InputCallback(old_text, new_text)
     let prompt = s:get_prompt_modify(l:lines, question)
     redraw
     echom "请等待 ChatGPT(" . g:nvim_ai_llm . ") 的响应..."
-    py3 vim.command("let ret = %s"% ai.just_do_it(vim.eval("prompt")))
-    if type(ret) == type("") && ret == "{timeout}"
-      call s:handle_timeout()
-      return
+    if g:nvim_ai_stream == 0
+      py3 vim.command("let ret = %s"% ai.just_do_it(vim.eval("prompt")))
+      if type(ret) == type("") && ret == "{timeout}"
+        call s:handle_timeout()
+        return
+      endif
+      call nvim_ai#delete_selected_lines()
+      call nvim_ai#append(s:line1, ret)
     endif
-    call deletebufline(bufnr(""), s:line1, s:line2)
-    call nvim_ai#append(s:line1, ret)
+
+    if g:nvim_ai_stream == 1
+      py3 ai.just_do_it(vim.eval("prompt"))
+    endif
 
     echom "done!"
     redraw
@@ -111,9 +119,8 @@ function! s:InputCallback(old_text, new_text)
   let s:range = 0
 endfunction
 
-function! s:handle_timeout()
-  echom "调用超时！"
-  redraw
+function! nvim_ai#delete_selected_lines()
+  call deletebufline(bufnr(""), s:line1, s:line2)
 endfunction
 
 function! s:str2list(str)
@@ -130,35 +137,11 @@ function! s:str2list(str)
 endfunction
 
 function! nvim_ai#run(line1, line2, range) range
-
-  " if g:nvim_ai_stream == 1
-  "   let aa = ["我","是","基","于","g","p","t","大","模","型","回","答","问","题","\n","\n","哈","哈","哈"]
-
-  "   " call feedkeys("i", "n")
-  "   let curr_line = ""
-  "   for letter in aa
-  "     " call feedkeys("a" . letter, "n")
-  "     " call feedkeys(letter, "i")
-  "     " exec "normal! a" . letter
-  "     let curr_line = curr_line . letter
-  "     call setline(3, curr_line)
-  "     sleep 10ms
-  "     redraw
-  "   endfor
-  "   redraw
-
-  "   return
-  " endif
-
-
-
-
-
-
   if !s:llm_check() | return | endif
   let s:line1 = a:line1
   let s:line2 = a:line2
   let s:range = a:range
+  let g:nvim_ai_range = a:range
   call nvim_ai#input#pop("", function("s:InputCallback"))
   redraw
   echom "等待 ChatGPT(" . g:nvim_ai_llm . ") 初始化..."
@@ -200,13 +183,10 @@ function! nvim_ai#append(start_line, lines)
 endfunction
 
 function! nvim_ai#insert(chunk)
-  call execute("normal! a" . a:chunk)
-  " undojoin
-  redraw
-  " let curr_line = getline(line("."))
-  " let curr_line = curr_line . a:chunk
-  " call setline(line("."), curr_line)
-  " call execute("redraw")
+  let curr_line = getline(line("."))
+  let curr_line = curr_line . a:chunk
+  call setline(line("."), curr_line)
+  call execute("redraw")
 endfunction
 
 function! s:is_code_warpper(line)

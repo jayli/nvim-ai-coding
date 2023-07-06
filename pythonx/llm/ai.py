@@ -16,23 +16,19 @@ llm = None
 # 是否支持流式输出
 stream_output = False
 
-def handler(script):
+def command_handler(script):
     global nvim
 
     if script == "[DONE]":
         vim.command("echom '[DONE]'")
-    # elif script == "normal a":
-    #     vim.command("normal! a")
+    elif script.startswith("\n"):
+        count = script.count("\n")
+        for i in range(count):
+            vim.command("normal! o")
+
+        vim.command("redraw")
     else:
-        # vim.command("normal! a" + script)
-        # vim.command("undojoin")
-        # vim.command("redraw")
         vim.command("call nvim_ai#insert('" + script + "')")
-        # vim.command("call nvim_ai#append(1, '" + script + "')")
-        # vim.command("redraw")
-        # vim.call("nvim_ai#insert", script)
-        # vim.command("call execute('normal! a" + script + "')")
-        # vim.command("normal! redraw")
 
 class CustomLLM(LLM):
     logging: bool = False
@@ -153,21 +149,29 @@ class CustomLLM(LLM):
 
             # 流式输出
             else:
-                url = "http://js-perf.cn:7001/test/chatgpt"
+                url = "http://localhost:7001/test/chatgpt"
+                payload["stream"] = "true"
                 response = requests.request("POST", url, data=json.dumps(payload), headers=headers, stream=True)
                 chunk_chars = ""
                 try:
+                    if vim.eval("g:nvim_ai_range") == "2":
+                        vim.command("call nvim_ai#delete_selected_lines()")
+                        
+                    print('>>>>>>>>>>>>>>')
+                    print(response.text)
+                    print('>>>>>>>>>>>>>>')
                     for chunk in response.iter_content(chunk_size=500):
                         chunk_chars = self.get_chars_from_chunk(chunk)
+                        print('--------')
+                        print(chunk_chars)
 
                         if chunk_chars == "[DONE]":
-                            vim.async_call(handler, chunk_chars)
+                            vim.command("echom '[DONE]'")
                             return ""
                         else:
-                            command_str = 'call nvim_ai#insert_chunk("' + chunk_chars.replace("\\'", "''") + '")'
                             letters = chunk_chars.replace("\\'", "''")
-                            vim.async_call(handler, letters)
-                            time.sleep(0.01)
+                            command_handler(letters)
+                    print("all done")
                 except KeyboardInterrupt:
                     print('Interrupted')
 
