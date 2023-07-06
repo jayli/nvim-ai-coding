@@ -132,24 +132,24 @@ endfunction
 
 function! nvim_ai#run(line1, line2, range) range
 
-  if g:nvim_ai_stream == 1
-    let aa = ["我","是","基","于","g","p","t","大","模","型","回","答","问","题","\n","\n","哈","哈","哈"]
+  " if g:nvim_ai_stream == 1
+  "   let aa = ["我","是","基","于","g","p","t","大","模","型","回","答","问","题","\n","\n","哈","哈","哈"]
 
-    " call feedkeys("i", "n")
-    let curr_line = ""
-    for letter in aa
-      " call feedkeys("a" . letter, "n")
-      " call feedkeys(letter, "i")
-      " exec "normal! a" . letter
-      let curr_line = curr_line . letter
-      call setline(3, curr_line)
-      sleep 10ms
-      redraw
-    endfor
-    redraw
+  "   " call feedkeys("i", "n")
+  "   let curr_line = ""
+  "   for letter in aa
+  "     " call feedkeys("a" . letter, "n")
+  "     " call feedkeys(letter, "i")
+  "     " exec "normal! a" . letter
+  "     let curr_line = curr_line . letter
+  "     call setline(3, curr_line)
+  "     sleep 10ms
+  "     redraw
+  "   endfor
+  "   redraw
 
-    return
-  endif
+  "   return
+  " endif
 
 
 
@@ -201,9 +201,10 @@ function! nvim_ai#append(start_line, lines)
 endfunction
 
 function! nvim_ai#insert(chunk)
-  call feedkeys("a我\<ESC>","n")
-  call execute('redraw','silent!')
-  " . a:chunk
+  let curr_line = getline(line("."))
+  let curr_line = curr_line . a:chunk
+  call setline(line("."), curr_line)
+  redraw
 endfunction
 
 function! s:is_code_warpper(line)
@@ -221,7 +222,7 @@ function! nvim_ai#root()
     endif
   endfor
   return ret_path
-endfunction 
+endfunction
 
 function! s:file_exists(filepath)
   if globpath(a:filepath, "") == ""
