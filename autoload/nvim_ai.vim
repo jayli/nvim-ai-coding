@@ -136,12 +136,15 @@ function! nvim_ai#run(line1, line2, range) range
     let aa = ["我","是","基","于","g","p","t","大","模","型","回","答","问","题","\n","\n","哈","哈","哈"]
 
     " call feedkeys("i", "n")
+    let curr_line = ""
     for letter in aa
       " call feedkeys("a" . letter, "n")
       " call feedkeys(letter, "i")
-      exec "normal! a" . letter
+      " exec "normal! a" . letter
+      let curr_line = curr_line . letter
+      call setline(3, curr_line)
+      sleep 10ms
       redraw
-      " sleep 10ms
     endfor
     redraw
 
