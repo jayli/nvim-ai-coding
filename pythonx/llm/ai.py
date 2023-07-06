@@ -8,7 +8,7 @@ import threading
 import requests
 import time
 # https://github.com/roxma/nvim-ascript/blob/abc89587d6d6c83eb28d62669f0111bb77c00d07/autoload/ascript.vim#L32
-import vim
+# import vim
 
 # 全局llm
 llm = None
@@ -149,21 +149,21 @@ class CustomLLM(LLM):
 
             # 流式输出
             else:
-                url = "http://localhost:7001/test/chatgpt"
+                # url = "http://localhost:7001/test/chatgpt"
                 payload["stream"] = "true"
                 response = requests.request("POST", url, data=json.dumps(payload), headers=headers, stream=True)
                 chunk_chars = ""
                 try:
-                    if vim.eval("g:nvim_ai_range") == "2":
-                        vim.command("call nvim_ai#delete_selected_lines()")
+                    # if vim.eval("g:nvim_ai_range") == "2":
+                    #     vim.command("call nvim_ai#delete_selected_lines()")
                         
-                    print('>>>>>>>>>>>>>>')
-                    print(response.text)
-                    print('>>>>>>>>>>>>>>')
+                    count = 0
                     for chunk in response.iter_content(chunk_size=500):
+                        count = count + 1
+                        print('--------' + str(count))
+
                         chunk_chars = self.get_chars_from_chunk(chunk)
-                        print('--------')
-                        print(chunk_chars)
+                        continue
 
                         if chunk_chars == "[DONE]":
                             vim.command("echom '[DONE]'")
@@ -194,6 +194,9 @@ class CustomLLM(LLM):
         if chunk_str.rstrip() == "[DONE]":
             return "[DONE]"
         try:
+            # TODO stream 的输出有可能一次输出好几个块，得先解析出每个具体的块然后再计算字符
+            # jayli
+            print(chunk_str)
             result = json.loads(chunk_str)
             return result["choices"][0]["delta"]["content"]
         except json.JSONDecodeError as e:
@@ -264,7 +267,8 @@ def just_do_it(prompt):
     # return thread.result
 
 if __name__ == '__main__':
-    llm_init(llm_type="api2d", api_key="sdfsdfdsfsf", stream="1")
-    print(just_do_it("写一段简单的 python 代码，打印一个 helloworld"))
+    llm_init(llm_type="api2d", api_key="fk209055-QCO1ChYkdCcPi1OnTWss7UlAjifaQ5RU", stream="1")
+    # print(just_do_it("基于 python 写一段代码，实现一个 tree 函数，列出给定目录的文件结构"))
+    print(just_do_it("基于 python 写一段代码，实现一个 helloworld"))
 
 # vim:ts=4:sw=4:sts=4
