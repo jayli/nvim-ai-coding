@@ -6,6 +6,7 @@ from langchain.llms.base import LLM
 from langchain.llms import OpenAI
 import threading
 import requests
+import time
 # https://github.com/roxma/nvim-ascript/blob/abc89587d6d6c83eb28d62669f0111bb77c00d07/autoload/ascript.vim#L32
 import vim
 
@@ -15,9 +16,6 @@ llm = None
 # 是否支持流式输出
 stream_output = False
 
-# 超时时间，单位s
-timeout = 13
-
 def handler(script):
     global nvim
 
@@ -26,10 +24,13 @@ def handler(script):
     # elif script == "normal a":
     #     vim.command("normal! a")
     else:
-        # vim.command("call nvim_ai#insert('" + script + "')")
+        # vim.command("normal! a" + script)
+        # vim.command("undojoin")
+        # vim.command("redraw")
+        vim.command("call nvim_ai#insert('" + script + "')")
         # vim.command("call nvim_ai#append(1, '" + script + "')")
         # vim.command("redraw")
-        vim.call("nvim_ai#insert", script)
+        # vim.call("nvim_ai#insert", script)
         # vim.command("call execute('normal! a" + script + "')")
         # vim.command("normal! redraw")
 
@@ -39,6 +40,7 @@ class CustomLLM(LLM):
     custom_api: str = ""
     api_key: str = ""
     stream_output: bool = False
+    timeout: int = 13
 
     # 支持 openai, apispace, api2d, custom
     llm_type: str = "apispace"
@@ -65,16 +67,24 @@ class CustomLLM(LLM):
 
         # custom llm
         if self._llm_type == "custom":
-            from langchain.requests import TextRequestsWrapper
-            response = TextRequestsWrapper().post(self.custom_api, {
-                "ask": prompt,
+            payload = {
                 "prompt": prompt,
                 "temperature":0,
                 "history": []
-            })
+            }
+            headers = {
+                "Content-Type":"application/json"
+            }
+            try:
+                response = requests.request("POST", self.custom_api, data=json.dumps(payload),
+                                            headers=headers, timeout=self.timeout)
+            except requests.exceptions.Timeout as e:
+                vim.command("echom '调用超时'")
+                return '{timeout}'
+
             self.log('<--------custom---------')
-            self.log(json.loads(response)["response"])
-            return json.loads(response)["response"]
+            self.log(json.loads(response.text)["response"])
+            return json.loads(response.text)["response"]
 
         # apispace
         elif self._llm_type == "apispace":
@@ -90,10 +100,17 @@ class CustomLLM(LLM):
                 "Authorization-Type":"apikey",
                 "Content-Type":"application/json"
             }
-            response = requests.request("POST", url, data=json.dumps(payload), headers=headers)
+            try:
+                response = requests.request("POST", url, data=json.dumps(payload),
+                                            headers=headers, timeout=self.timeout)
+            except requests.exceptions.Timeout as e:
+                vim.command("echom '调用超时'")
+                return '{timeout}'
+
             result = json.loads(response.text)
-            if "error" in result:
-                return result["error"]
+            if "status" in result and result["status"] == "error":
+                vim.command('echom \'' + result["msg"] + '\'')
+                return "{error}"
             else:
                 self.log('<--------apispace---------')
                 self.log(result["result"])
@@ -119,10 +136,18 @@ class CustomLLM(LLM):
 
             # 非流式输出
             if self.stream_output == False:
-                response = requests.request("POST", url, data=json.dumps(payload), headers=headers)
+                # jayli
+                try:
+                    response = requests.request("POST", url, data=json.dumps(payload),
+                                                headers=headers, timeout=self.timeout)
+                except requests.exceptions.Timeout as e:
+                    vim.command("echom '调用超时'")
+                    return '{timeout}'
+
                 result = json.loads(response.text)
                 if "object" in result and result["object"] == "error":
-                    return result["message"]
+                    vim.command('echom "' + result["message"] + '"')
+                    return "{error}"
                 else:
                     return result['choices'][0]["message"]["content"]
 
@@ -142,6 +167,7 @@ class CustomLLM(LLM):
                             command_str = 'call nvim_ai#insert_chunk("' + chunk_chars.replace("\\'", "''") + '")'
                             letters = chunk_chars.replace("\\'", "''")
                             vim.async_call(handler, letters)
+                            time.sleep(0.01)
                 except KeyboardInterrupt:
                     print('Interrupted')
 
@@ -187,11 +213,17 @@ def llm_init(llm_type="", api_key="", custom_api="", stream=0):
     if llm_type == "openai":
         llm = OpenAI(openai_api_key=api_key, temperature=0.9)
     else:
-        llm = CustomLLM(llm_type=llm_type, api_key=api_key, custom_api=custom_api, stream_output=stream_output)
+        llm = CustomLLM(llm_type=llm_type,
+                        api_key=api_key,
+                        custom_api=custom_api,
+                        stream_output=stream_output)
 
 def llm_request(prompt, llm):
     prompts = "\n".join(prompt)
     result = llm(prompts)
+    if result == "{error}" or result == "{timeout}":
+        return result
+
     results = result.split("\n")
     return_str = str(results).replace("\\'", "''")
     return return_str
@@ -211,15 +243,21 @@ class FooThread(threading.Thread):
 
 # 调用入口
 def just_do_it(prompt):
-    global timeout, llm
-    thread = FooThread(prompt=prompt, llm=llm)
-    thread.start()
-    thread.join(timeout)
+    global llm, vim
+    result = llm_request(prompt, llm)
+    if result == "{timeout}" or result == "{error}":
+        return '""'
+    else:
+        return result
 
-    if thread.is_alive():
-        return '"{timeout}"'
+    # thread = FooThread(prompt=prompt, llm=llm)
+    # thread.start()
+    # thread.join(timeout)
 
-    return thread.result
+    # if thread.is_alive():
+    #     return '"{timeout}"'
+
+    # return thread.result
 
 if __name__ == '__main__':
     llm_init(llm_type="api2d", api_key="sdfsdfdsfsf", stream="1")

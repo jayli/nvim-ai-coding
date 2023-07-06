@@ -69,8 +69,7 @@ function! s:InputCallback(old_text, new_text)
     echom "请等待 ChatGPT(" . g:nvim_ai_llm . ") 的响应..."
     if g:nvim_ai_stream == 0
       py3 vim.command("let ret = %s"% ai.just_do_it(vim.eval("prompt")))
-      if type(ret) == type("") && ret == "{timeout}"
-        call s:handle_timeout()
+      if type(ret) == type("") && ret == ""
         return
       endif
       call nvim_ai#append(s:line1 + 1, ret)
@@ -201,10 +200,13 @@ function! nvim_ai#append(start_line, lines)
 endfunction
 
 function! nvim_ai#insert(chunk)
-  let curr_line = getline(line("."))
-  let curr_line = curr_line . a:chunk
-  call setline(line("."), curr_line)
+  call execute("normal! a" . a:chunk)
+  " undojoin
   redraw
+  " let curr_line = getline(line("."))
+  " let curr_line = curr_line . a:chunk
+  " call setline(line("."), curr_line)
+  " call execute("redraw")
 endfunction
 
 function! s:is_code_warpper(line)
