@@ -16,12 +16,19 @@ llm = None
 # 默认都不支持流式输出，目前只实现了 api2d 的流式输出
 stream_output = False
 
-def command_handler(script):
+def contains_newline(s):
+    return '\n' in s or '\r\n' in s
+
+def vim_command_handler(script):
     global nvim
 
+    print('-------')
+    # TODO 一个输出块内通常会包含回车
+    print("包含回车" if contains_newline(script) else "无回车")
+    print(script)
     if script == "[DONE]":
         vim.command("echom '[DONE]'")
-    elif script.startswith("\n") or script.startswith("\r"):
+    elif contains_newline(script):
         count = script.count("\n")
         for i in range(count):
             vim.command("call nvim_ai#new_line()")
@@ -134,7 +141,6 @@ class CustomLLM(LLM):
 
             # 非流式输出
             if self.stream_output == False:
-                # jayli
                 try:
                     response = requests.request("POST", url, data=json.dumps(payload),
                                                 headers=headers, timeout=self.timeout)
@@ -147,33 +153,39 @@ class CustomLLM(LLM):
                     vim.command('echom "' + result["message"] + '"')
                     return "{error}"
                 else:
+                    self.log('<--------apispace---------')
+                    self.log(result['choices'][0]["message"]["content"])
                     return result['choices'][0]["message"]["content"]
 
             # 流式输出
             else:
                 # url = "http://localhost:7001/test/chatgpt"
                 payload["stream"] = "true"
-                response = requests.request("POST", url, data=json.dumps(payload), headers=headers, stream=True)
+                try:
+                    response = requests.request("POST", url, data=json.dumps(payload),
+                                                headers=headers, stream=True, timeout=self.timeout)
+                except requests.exceptions.Timeout as e:
+                    vim.command("echom '调用超时'")
+                    return '{timeout}'
+
                 chunk_chars = ""
                 try:
+                    # 如果是选中一个范围时
                     if vim.eval("g:nvim_ai_range") == "2":
                         vim.command("call nvim_ai#delete_selected_lines()")
 
                     count = 0
                     for chunk in response.iter_content(chunk_size=500):
                         count = count + 1
-                        # print('--------' + str(count))
-
                         chunk_chars = self.get_chars_from_chunk(chunk)
-                        # print(chunk_chars)
 
                         if chunk_chars == "[DONE]":
                             vim.command("echom '[DONE]'")
                             return ""
                         else:
                             letters = chunk_chars.replace("\\'", "''")
-                            command_handler(letters)
-                    print("all done")
+                            vim_command_handler(letters)
+
                 except KeyboardInterrupt:
                     print('Interrupted')
 
@@ -282,7 +294,6 @@ def just_do_it(prompt):
 
 if __name__ == '__main__':
     llm_init(llm_type="api2d", api_key="fk209055-QCO1ChYkdCcPi1OnTWss7UlAjifaQ5RU", stream="1")
-    # print(just_do_it("基于 python 写一段代码，实现一个 tree 函数，列出给定目录的文件结构"))
     print(just_do_it("基于 python 写一段代码，实现一个 helloworld"))
 
 # vim:ts=4:sw=4:sts=4
