@@ -200,18 +200,25 @@ function! s:complete_selected()
   return complete_info()['selected'] == -1 ? v:false : v:true
 endfunction
 
+function! s:remove_spaces(input)
+  let output = substitute(a:input, ' ', '', 'g')
+  return output
+endfunction
+
 function! s:fuzzy_search(needle, haystack)
-  let tlen = strlen(a:haystack)
-  let qlen = strlen(a:needle)
+  let l:haystack = s:remove_spaces(a:haystack)
+  let l:needle = s:remove_spaces(a:needle)
+  let tlen = strlen(l:haystack)
+  let qlen = strlen(l:needle)
   if qlen > tlen
     return v:false
   endif
   if qlen == tlen
-    return a:needle ==? a:haystack ? v:true : v:false
+    return l:needle ==? l:haystack ? v:true : v:false
   endif
 
-  let needle_ls = s:str2list(tolower(a:needle))
-  let haystack_ls = s:str2list(tolower(a:haystack))
+  let needle_ls = s:str2list(tolower(l:needle))
+  let haystack_ls = s:str2list(tolower(l:haystack))
 
   let cursor_n = 0
   let cursor_h = 0
