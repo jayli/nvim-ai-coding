@@ -182,6 +182,10 @@ function! nvim_ai#append(start_line, lines)
   endfor
 endfunction
 
+function! nvim_ai#append_blank_line()
+  call appendbufline(bufnr(""), line("."), "")
+endfunction
+
 function! nvim_ai#insert(chunk)
   let curr_line = getline(line("."))
   let curr_line = curr_line . a:chunk

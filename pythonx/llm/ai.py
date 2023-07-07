@@ -6,9 +6,9 @@ from langchain.llms.base import LLM
 from langchain.llms import OpenAI
 import threading
 import requests
+import re
 import time
-# https://github.com/roxma/nvim-ascript/blob/abc89587d6d6c83eb28d62669f0111bb77c00d07/autoload/ascript.vim#L32
-# import vim
+import vim
 
 # 全局llm
 llm = None
@@ -22,9 +22,11 @@ def command_handler(script):
     if script == "[DONE]":
         vim.command("echom '[DONE]'")
     elif script.startswith("\n"):
+        # todo 处理回车符
         count = script.count("\n")
         for i in range(count):
             vim.command("normal! o")
+            # vim.command("call nvim_ai#append_blank_line()")
 
         vim.command("redraw")
     else:
@@ -154,16 +156,15 @@ class CustomLLM(LLM):
                 response = requests.request("POST", url, data=json.dumps(payload), headers=headers, stream=True)
                 chunk_chars = ""
                 try:
-                    # if vim.eval("g:nvim_ai_range") == "2":
-                    #     vim.command("call nvim_ai#delete_selected_lines()")
-                        
+                    if vim.eval("g:nvim_ai_range") == "2":
+                        vim.command("call nvim_ai#delete_selected_lines()")
+
                     count = 0
                     for chunk in response.iter_content(chunk_size=500):
                         count = count + 1
-                        print('--------' + str(count))
+                        # print('--------' + str(count))
 
                         chunk_chars = self.get_chars_from_chunk(chunk)
-                        continue
 
                         if chunk_chars == "[DONE]":
                             vim.command("echom '[DONE]'")
@@ -194,13 +195,25 @@ class CustomLLM(LLM):
         if chunk_str.rstrip() == "[DONE]":
             return "[DONE]"
         try:
-            # TODO stream 的输出有可能一次输出好几个块，得先解析出每个具体的块然后再计算字符
-            # jayli
-            print(chunk_str)
             result = json.loads(chunk_str)
             return result["choices"][0]["delta"]["content"]
         except json.JSONDecodeError as e:
-            print(e)
+            tmp_data = chunk_str.split("\n")
+            curr_letter = ""
+            for item in tmp_data:
+                if item.strip() == "":
+                    continue
+                if item.startswith("data:"):
+                    line = re.sub(r"^data:", "", item).strip()
+                else:
+                    line = item
+
+                res = json.loads(line)
+                delta = res["choices"][0]["delta"]
+                if "content" in delta:
+                    curr_letter = curr_letter + delta["content"]
+
+            return curr_letter
 
 
     @property
