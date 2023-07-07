@@ -17,7 +17,7 @@ setlocal autowriteall
 
 " openai, apispace, custom
 if !exists("g:nvim_ai_llm")
-  let g:nvim_ai_llm = "openai"
+  let g:nvim_ai_llm = ""
 endif
 
 if !exists("g:nvim_ai_prompt")

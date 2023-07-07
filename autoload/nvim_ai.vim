@@ -150,6 +150,11 @@ function! nvim_ai#run(line1, line2, range) range
 endfunction
 
 function! s:llm_check()
+  if g:nvim_ai_llm == ""
+    redraw
+    echom "g:nvim_ai_llm 为空，请配置 llm 类型"
+    return v:false
+  endif
   if g:nvim_ai_llm == "custom" && g:nvim_ai_custom_api == ""
     redraw
     echom "custom api 为空，请配置 g:nvim_ai_custom_api"
