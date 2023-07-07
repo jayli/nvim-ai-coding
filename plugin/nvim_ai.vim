@@ -40,4 +40,8 @@ if !exists("g:nvim_ai_stream")
   let g:nvim_ai_stream = 0
 endif
 
+if !exists("g:nvim_ai_model")
+  let g:nvim_ai_model = "gpt-3.5-turbo-0613"
+endif
+
 " vim:ts=2:sw=2:sts=2

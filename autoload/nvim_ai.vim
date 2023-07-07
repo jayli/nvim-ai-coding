@@ -206,7 +206,7 @@ function! nvim_ai#insert(chunk)
 endfunction
 
 function! s:is_code_warpper(line)
-  if a:line == "```" . &filetype || a:line == "```"
+  if a:line == "```" . &filetype || a:line == "```" || a:line =~ "^```[a-zA-Z0-9]\\{,15}$"
     return v:true
   endif
 endfunction

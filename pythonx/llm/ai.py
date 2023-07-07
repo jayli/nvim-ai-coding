@@ -136,8 +136,9 @@ class CustomLLM(LLM):
 
         elif self._llm_type == "api2d":
             url = "https://oa.api2d.net/v1/chat/completions"
+            gpt_model = vim.eval("g:nvim_ai_model")
             payload = {
-                    "model": "gpt-3.5-turbo-0613",
+                    "model": gpt_model,
                     "messages": [
                         {
                             "role": "user",
