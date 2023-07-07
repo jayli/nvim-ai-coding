@@ -4,10 +4,8 @@ import json
 from typing import Any, List, Dict, Mapping, Optional
 from langchain.llms.base import LLM
 from langchain.llms import OpenAI
-import threading
 import requests
 import re
-import time
 import vim
 
 # 全局llm
@@ -225,7 +223,6 @@ class CustomLLM(LLM):
         return output.rstrip('\n')
 
     def get_chars_from_chunk(self, chunk):
-        # TODO: Unterminated string starting at: line 1 column 57 (char 56)
         chunk_str = self.parse_chunk_from_api2d(chunk.decode("utf-8"))
         if chunk_str.rstrip() == "[DONE]":
             return "[DONE]"
@@ -287,19 +284,6 @@ def llm_request(prompt, llm):
     return_str = str(results).replace("\\'", "''")
     return return_str
 
-class FooThread(threading.Thread):
-    prompt: str = ""
-    llm: any = None
-
-    def __init__(self, prompt, llm):
-        super().__init__(daemon=True)
-        self.prompt = prompt
-        self.llm = llm
-        self.result = None
-
-    def run(self):
-        self.result = llm_request(self.prompt, self.llm)
-
 # 调用入口
 def just_do_it(prompt):
     global llm, vim
@@ -308,15 +292,6 @@ def just_do_it(prompt):
         return '""'
     else:
         return result
-
-    # thread = FooThread(prompt=prompt, llm=llm)
-    # thread.start()
-    # thread.join(timeout)
-
-    # if thread.is_alive():
-    #     return '"{timeout}"'
-
-    # return thread.result
 
 if __name__ == '__main__':
     llm_init(llm_type="api2d", api_key="fk209055-QCO1ChYkdCcPi1OnTWss7UlAjifaQ5RU", stream="1")
