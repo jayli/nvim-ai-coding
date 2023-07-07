@@ -13,7 +13,7 @@ xnoremap <Plug>AICoding :NvimAICoding<CR>
 nnoremap <Plug>AICoding :NvimAICoding<CR>
 
 " 这个也不能保证100%好使
-set autowriteall
+setlocal autowriteall
 
 " openai, apispace, custom
 if !exists("g:nvim_ai_llm")
