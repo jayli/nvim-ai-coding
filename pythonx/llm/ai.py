@@ -13,7 +13,7 @@ import vim
 # 全局llm
 llm = None
 
-# 是否支持流式输出
+# 默认都不支持流式输出，目前只实现了 api2d 的流式输出
 stream_output = False
 
 def command_handler(script):
@@ -21,8 +21,12 @@ def command_handler(script):
 
     if script == "[DONE]":
         vim.command("echom '[DONE]'")
-    elif script.startswith("\n"):
+    elif script.startswith("\n") or script.startswith("\r"):
         count = script.count("\n")
+        for i in range(count):
+            vim.command("call nvim_ai#new_line()")
+
+        count = script.count("\r")
         for i in range(count):
             vim.command("call nvim_ai#new_line()")
     else:
