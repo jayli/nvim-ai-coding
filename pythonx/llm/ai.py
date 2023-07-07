@@ -22,13 +22,9 @@ def command_handler(script):
     if script == "[DONE]":
         vim.command("echom '[DONE]'")
     elif script.startswith("\n"):
-        # todo 处理回车符
         count = script.count("\n")
         for i in range(count):
-            vim.command("normal! o")
-            # vim.command("call nvim_ai#append_blank_line()")
-
-        vim.command("redraw")
+            vim.command("call nvim_ai#new_line()")
     else:
         vim.command("call nvim_ai#insert('" + script + "')")
 
@@ -165,6 +161,7 @@ class CustomLLM(LLM):
                         # print('--------' + str(count))
 
                         chunk_chars = self.get_chars_from_chunk(chunk)
+                        # print(chunk_chars)
 
                         if chunk_chars == "[DONE]":
                             vim.command("echom '[DONE]'")

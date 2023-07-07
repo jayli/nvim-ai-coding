@@ -39,7 +39,7 @@ function! s:get_prompt_modify(lines, question)
           \ ' ',
           \ '我的要求是：' . a:question . '',
           \ '根据上面的要求，请只输出一段' . &filetype . '代码，除了注释之外，不要输出其他内容，包括代码的解释说明',
-          \ '再次强调一下，请不要输出代码片段之外的内容，而且不要以 Markdown 格式输出。'
+          \ '再次强调一下，请不要输出代码片段之外的内容，而且不要以 Markdown 格式输出。不要输出"```"代码包裹字符。'
           \ ]
     let prompt = prefix + a:lines + sufix
     return prompt
@@ -51,7 +51,7 @@ function! s:get_prompt_new(question)
         \ '你是一个代码生成器，你只会根据我的要求输出代码。',
         \ '我需要你帮我写一段' . &filetype . '代码，我的要求是：' . a:question . '',
         \ '根据上面的要求，请只输出一段' . &filetype . '代码，除了注释之外，不要输出其他内容，包括代码的解释说明',
-        \ '再次强调一下，请不要输出代码片段之外的内容，而且不要以 Markdown 格式输出。'
+        \ '再次强调一下，请不要输出代码片段之外的内容，而且不要以 Markdown 格式输出，不要输出"```"代码包裹字符。'
         \ ]
   return prompt
 endfunction
@@ -68,7 +68,7 @@ function! s:InputCallback(old_text, new_text)
     endif
     let prompt = s:get_prompt_new(question)
     redraw
-    echom "请等待 ChatGPT(" . g:nvim_ai_llm . ") 的响应..."
+    echom "请等待 ChatGPT 的响应..."
     if g:nvim_ai_stream == 0
       py3 vim.command("let ret = %s"% ai.just_do_it(vim.eval("prompt")))
       if type(ret) == type("") && ret == ""
@@ -95,7 +95,7 @@ function! s:InputCallback(old_text, new_text)
     endif
     let prompt = s:get_prompt_modify(l:lines, question)
     redraw
-    echom "请等待 ChatGPT(" . g:nvim_ai_llm . ") 的响应..."
+    echom "请等待 ChatGPT 的响应..."
     if g:nvim_ai_stream == 0
       py3 vim.command("let ret = %s"% ai.just_do_it(vim.eval("prompt")))
       if type(ret) == type("") && ret == "{timeout}"
@@ -182,15 +182,17 @@ function! nvim_ai#append(start_line, lines)
   endfor
 endfunction
 
-function! nvim_ai#append_blank_line()
+function! nvim_ai#new_line()
   call appendbufline(bufnr(""), line("."), "")
+  call cursor(line(".") + 1, 1)
+  redraw
 endfunction
 
 function! nvim_ai#insert(chunk)
   let curr_line = getline(line("."))
   let curr_line = curr_line . a:chunk
   call setline(line("."), curr_line)
-  call execute("redraw")
+  redraw
 endfunction
 
 function! s:is_code_warpper(line)

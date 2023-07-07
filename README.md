@@ -62,8 +62,11 @@ let g:nvim_ai_apikey = "xxx"
 ```vim
 let g:nvim_ai_llm = 'api2d'
 let g:nvim_ai_apikey = 'xxx'
+" 是否支持流式输出
+let g:nvim_ai_stream = 1
 ```
 
+目前只有 API2D 实现了流式输出支持，配置`g:nvim_ai_stream = 1`，不配置的话默认非流式输出。
 
 **4) 自定义 API：**
 
