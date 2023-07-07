@@ -192,9 +192,30 @@ function! nvim_ai#new_line()
   if s:is_code_warpper(getline(line(".")))
     call setbufline(bufnr(""), line("."), "")
   endif
+  call s:nr()
+  redraw
+endfunction
+
+function! nvim_ai#stream_first_rendering()
+  if g:nvim_ai_range == 2
+    call nvim_ai#delete_selected_lines()
+  endif
+
+  if g:nvim_ai_range == 0
+    if trim(getline(line("."))) == ""
+      call setbufline(bufnr(""), line("."), "")
+      return
+    else
+      call s:nr()
+      return
+    endif
+  endif
+endfunction
+
+" new line
+function! s:nr()
   call appendbufline(bufnr(""), line("."), "")
   call cursor(line(".") + 1, 1)
-  redraw
 endfunction
 
 function! nvim_ai#teardown()
