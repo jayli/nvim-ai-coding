@@ -186,6 +186,10 @@ class CustomLLM(LLM):
                     if vim.eval("g:nvim_ai_range") == "2":
                         vim.command("call nvim_ai#delete_selected_lines()")
 
+                    # 如果是插入模式，则在cursor所在行的下一行开始输入
+                    if vim.eval("g:nvim_ai_range") == "0":
+                        vim.command("call nvim_ai#new_line()")
+
                     count = 0
                     for chunk in response.iter_content(chunk_size=1500):
                         count = count + 1
