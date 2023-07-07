@@ -75,13 +75,13 @@ function! s:InputCallback(old_text, new_text)
         return
       endif
       call nvim_ai#append(s:line1 + 1, ret)
+      echom "done!"
     endif
 
     if g:nvim_ai_stream == 1
       py3 ai.just_do_it(vim.eval("prompt"))
     endif
 
-    echom "done!"
     redraw
 
   " 原文修改
@@ -104,13 +104,13 @@ function! s:InputCallback(old_text, new_text)
       endif
       call nvim_ai#delete_selected_lines()
       call nvim_ai#append(s:line1, ret)
+      echom "done!"
     endif
 
     if g:nvim_ai_stream == 1
       py3 ai.just_do_it(vim.eval("prompt"))
     endif
 
-    echom "done!"
     redraw
   endif
 
@@ -183,9 +183,19 @@ function! nvim_ai#append(start_line, lines)
 endfunction
 
 function! nvim_ai#new_line()
+  " 流式输出换行时判断是否为代码包裹所用的字符
+  if s:is_code_warpper(getline(line(".")))
+    call setbufline(bufnr(""), line("."), "")
+  endif
   call appendbufline(bufnr(""), line("."), "")
   call cursor(line(".") + 1, 1)
   redraw
+endfunction
+
+function! nvim_ai#teardown()
+  if s:is_code_warpper(getline(line(".")))
+    call setbufline(bufnr(""), line("."), "")
+  endif
 endfunction
 
 function! nvim_ai#insert(chunk)

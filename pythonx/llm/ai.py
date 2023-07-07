@@ -30,6 +30,7 @@ def vim_command_handler(script):
     global nvim
 
     if script == "[DONE]":
+        vim.command("call nvim_ai#teardown()")
         vim.command("echom '[DONE]'")
     # elif script == "\n":
     #     vim.command("call nvim_ai#new_line()")
@@ -187,18 +188,20 @@ class CustomLLM(LLM):
                         vim.command("call nvim_ai#delete_selected_lines()")
 
                     count = 0
-                    for chunk in response.iter_content(chunk_size=500):
+                    for chunk in response.iter_content(chunk_size=1500):
                         count = count + 1
-                        print("----------")
                         chunk_chars = self.get_chars_from_chunk(chunk)
-                        print(chunk_chars)
-
 
                         if chunk_chars == "[DONE]":
+                            vim.command("call nvim_ai#teardown()")
                             vim.command("echom '[DONE]'")
                             return ""
+                        elif chunk_chars.endswith("[DONE]"):
+                            letters = chunk_chars.replace("[DONE]", "")
+                            vim_command_handler(letters)
+                            vim_command_handler("[DONE]")
                         else:
-                            letters = chunk_chars.replace("\\'", "''")
+                            letters = chunk_chars.replace("'", "''")
                             vim_command_handler(letters)
 
                 except KeyboardInterrupt:
@@ -221,6 +224,7 @@ class CustomLLM(LLM):
         return output.rstrip('\n')
 
     def get_chars_from_chunk(self, chunk):
+        # TODO: Unterminated string starting at: line 1 column 57 (char 56)
         chunk_str = self.parse_chunk_from_api2d(chunk.decode("utf-8"))
         if chunk_str.rstrip() == "[DONE]":
             return "[DONE]"
@@ -237,6 +241,10 @@ class CustomLLM(LLM):
                     line = re.sub(r"^data:", "", item).strip()
                 else:
                     line = item
+
+                if line == "[DONE]":
+                    curr_letter = curr_letter + "[DONE]"
+                    break
 
                 res = json.loads(line)
                 delta = res["choices"][0]["delta"]
