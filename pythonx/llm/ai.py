@@ -16,26 +16,38 @@ llm = None
 # 默认都不支持流式输出，目前只实现了 api2d 的流式输出
 stream_output = False
 
-def contains_newline(s):
+def contains_nr(s):
     return '\n' in s or '\r\n' in s
+
+def is_all_nr(s):
+    if s.count("\n") == len(s) or s.count("\r") == len(s):
+        return True
+    else:
+        return False
+
 
 def vim_command_handler(script):
     global nvim
 
-    print('-------')
-    # TODO 一个输出块内通常会包含回车
-    print("包含回车" if contains_newline(script) else "无回车")
-    print(script)
     if script == "[DONE]":
         vim.command("echom '[DONE]'")
-    elif contains_newline(script):
-        count = script.count("\n")
-        for i in range(count):
+    # elif script == "\n":
+    #     vim.command("call nvim_ai#new_line()")
+    elif is_all_nr(script):
+        for i in range(len(script)):
             vim.command("call nvim_ai#new_line()")
+    elif contains_nr(script):
+        script_items= script.split("\n")
+        tmp_count = 0
+        for item in script_items:
+            if item == "":
+                vim.command("call nvim_ai#new_line()")
+            else:
+                if tmp_count > 0:
+                    vim.command("call nvim_ai#new_line()")
 
-        count = script.count("\r")
-        for i in range(count):
-            vim.command("call nvim_ai#new_line()")
+                vim.command("call nvim_ai#insert('" + script.strip() + "')")
+                tmp_count = tmp_count + 1
     else:
         vim.command("call nvim_ai#insert('" + script + "')")
 
@@ -177,7 +189,10 @@ class CustomLLM(LLM):
                     count = 0
                     for chunk in response.iter_content(chunk_size=500):
                         count = count + 1
+                        print("----------")
                         chunk_chars = self.get_chars_from_chunk(chunk)
+                        print(chunk_chars)
+
 
                         if chunk_chars == "[DONE]":
                             vim.command("echom '[DONE]'")
@@ -188,6 +203,8 @@ class CustomLLM(LLM):
 
                 except KeyboardInterrupt:
                     print('Interrupted')
+                except Exception as e:
+                    print(">>:" + str(e))
 
                 return ""
 

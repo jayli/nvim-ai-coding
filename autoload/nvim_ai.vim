@@ -39,7 +39,7 @@ function! s:get_prompt_modify(lines, question)
           \ ' ',
           \ '我的要求是：' . a:question . '',
           \ '根据上面的要求，请只输出一段' . &filetype . '代码，除了注释之外，不要输出其他内容，包括代码的解释说明',
-          \ '再次强调一下，请不要输出代码片段之外的内容，而且不要以 Markdown 格式输出。不要输出"```"代码包裹字符。'
+          \ '再次强调一下，请不要输出代码片段之外的内容，而且不要以 Markdown 格式输出。不要输出"```"这类包裹代码块的字符。'
           \ ]
     let prompt = prefix + a:lines + sufix
     return prompt
@@ -51,7 +51,7 @@ function! s:get_prompt_new(question)
         \ '你是一个代码生成器，你只会根据我的要求输出代码。',
         \ '我需要你帮我写一段' . &filetype . '代码，我的要求是：' . a:question . '',
         \ '根据上面的要求，请只输出一段' . &filetype . '代码，除了注释之外，不要输出其他内容，包括代码的解释说明',
-        \ '再次强调一下，请不要输出代码片段之外的内容，而且不要以 Markdown 格式输出，不要输出"```"代码包裹字符。'
+        \ '再次强调一下，请不要输出代码片段之外的内容，而且不要以 Markdown 格式输出，不要输出"```"这类包裹代码块的字符。'
         \ ]
   return prompt
 endfunction
