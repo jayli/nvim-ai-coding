@@ -115,6 +115,8 @@ let g:nvim_ai_prompt = "/file/path/to/your/prompt.txt"
 let g:nvim_ai_default_prompt = 0
 ```
 
+插件会默认自动记录你的 prompt 历史，可以配置`g:nvim_ai_history_prompt = 0`来关闭历史记录。
+
 ## 三）LICENSE
 
 MIT

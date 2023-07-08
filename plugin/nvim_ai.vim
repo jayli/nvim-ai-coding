@@ -7,6 +7,10 @@ if !has('python3')
   finish
 endif
 
+if has('win32') || has('win64')
+  finish
+endif
+
 command! -nargs=* -range -bang NvimAICoding call nvim_ai#run(<line1>, <line2>, <range>)
 
 xnoremap <Plug>AICoding :NvimAICoding<CR>
@@ -15,7 +19,7 @@ nnoremap <Plug>AICoding :NvimAICoding<CR>
 " 这个也不能保证100%好使
 setlocal autowriteall
 
-" openai, apispace, custom
+" openai, apispace, api2d, custom
 if !exists("g:nvim_ai_llm")
   let g:nvim_ai_llm = ""
 endif
@@ -42,6 +46,10 @@ endif
 
 if !exists("g:nvim_ai_model")
   let g:nvim_ai_model = "gpt-3.5-turbo-0613"
+endif
+
+if !exists("g:nvim_ai_history_prompt")
+  let g:nvim_ai_history_prompt = 1
 endif
 
 " vim:ts=2:sw=2:sts=2

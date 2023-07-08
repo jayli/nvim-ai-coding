@@ -36,12 +36,50 @@ function! s:history_file()
 endfunction
 
 function! s:init_prompt_history()
-  " TODO
-  " Vim code to check if a file exists and create it if it doesn't
-  " Check if the file exists
-  if !filereadable(s:history_file())
-    " Create the file if it doesn't exist
-    " execute 'silent! write'
+  let history_prompt_file = s:history_file()
+  call s:create_dir(s:get_file_directory(history_prompt_file))
+  if !s:file_exists(history_prompt_file)
+    call writefile(["----- Prompt History ------"], history_prompt_file, "a")
+  endif
+endfunction
+
+function! s:get_file_directory(filepath)
+  let l:filedir = fnamemodify(a:filepath, ':h')
+  return l:filedir
+endfunction
+
+function! s:recording_prompt(prompt)
+  if g:nvim_ai_history_prompt == 0 | return | endif
+  let current_prompt_list = nvim_ai#input#get_current_all_prompt()
+  let contained = v:false
+
+  for item in current_prompt_list
+    if nvim_ai#remove_spaces(item) == nvim_ai#remove_spaces(a:prompt)
+      let contained = v:true
+      break
+    endif
+  endfor
+
+  if contained == v:true
+    return
+  endif
+
+  let history_prompt_file = s:history_file()
+  let old_content = readfile(history_prompt_file, "", -1 * 500)
+  let new_content = old_content + [a:prompt]
+  call writefile(new_content, history_prompt_file, "S")
+endfunction
+
+function! nvim_ai#remove_spaces(input)
+  let output = substitute(a:input, ' ', '', 'g')
+  return output
+endfunction
+
+function! s:create_dir(dir)
+  if !isdirectory(a:dir)
+    let l:parent = fnamemodify(a:dir, ':h')
+    call s:create_dir(l:parent)
+    execute 'silent! !mkdir -p' a:dir
   endif
 endfunction
 
@@ -99,6 +137,8 @@ function! s:InputCallback(old_text, new_text)
     endif
 
     redraw
+
+    call s:recording_prompt(question)
 
   " 原文修改
   elseif s:range == 2
@@ -265,11 +305,13 @@ function! nvim_ai#root()
 endfunction
 
 function! s:file_exists(filepath)
-  if globpath(a:filepath, "") == ""
+  try
+    let content = readfile(a:filepath, 1)
+  catch /484/
+    " File is not exists or can not open
     return v:false
-  else
-    return v:true
-  endif
+  endtry
+  return v:true
 endfunction
 
 function! nvim_ai#get_all_prompt()
@@ -283,15 +325,27 @@ function! nvim_ai#get_all_prompt()
   if type(g:nvim_ai_prompt) == type([])
     for item in g:nvim_ai_prompt
       if s:file_exists(item)
-        call add(all_prompt, readfile(item))
+        call extend(all_prompt, readfile(item))
       endif
     endfor
   elseif type(g:nvim_ai_prompt) == type("")
     if s:file_exists(g:nvim_ai_prompt)
-      call add(all_prompt, readfile(g:nvim_ai_prompt))
+      call extend(all_prompt, readfile(g:nvim_ai_prompt))
     endif
   endif
+
   return all_prompt
+endfunction
+
+function! nvim_ai#get_history_prompt()
+  let history_prompt = []
+  if g:nvim_ai_history_prompt == 1
+    let history_prompt_file = s:history_file()
+    if s:file_exists(history_prompt_file)
+      call extend(history_prompt, readfile(history_prompt_file))
+    endif
+  endif
+  return history_prompt
 endfunction
 
 

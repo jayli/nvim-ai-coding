@@ -105,7 +105,7 @@ function! s:create_nvim_input_window(old_text, callback) abort
         \ 'inoremap <buffer><expr> <CR> nvim_ai#input#handle_cr()',
         \ 'inoremap <buffer><expr> <ESC> nvim_ai#input#handle_esc()',
         \ 'inoremap <buffer><silent><expr> <Tab> nvim_ai#input#clever_tab()',
-        \ 'inoremap <silent><expr> <S-Tab> nvim_ai#input#shift_clever_tab()',
+        \ 'inoremap <buffer><silent><expr> <S-Tab> nvim_ai#input#shift_clever_tab()',
         \ 'autocmd TextChangedI <buffer> call nvim_ai#input#fuzzy_match()',
         \ 'autocmd TextChangedP <buffer> call nvim_ai#input#fuzzy_match()',
         \ ])
@@ -136,6 +136,19 @@ function! nvim_ai#input#fuzzy_match()
   call s:async_run(function("s:fuzzy_match"), [], 70)
 endfunction
 
+function! s:get_current_all_prompt()
+  let all_prompt_list = s:prompt_list
+  if g:nvim_ai_history_prompt == 1
+    let history_prompt = nvim_ai#get_history_prompt()
+    let all_prompt_list = all_prompt_list + history_prompt
+  endif
+  return all_prompt_list
+endfunction
+
+function! nvim_ai#input#get_current_all_prompt()
+  return s:get_current_all_prompt()
+endfunction
+
 function! s:fuzzy_match()
   let current_line = s:get_current_line()
   if len(current_line) == 0
@@ -143,7 +156,8 @@ function! s:fuzzy_match()
     return
   endif
   let menu_list = []
-  for item in s:prompt_list
+  let all_prompt_list = s:get_current_all_prompt()
+  for item in all_prompt_list
     if matchstr(trim(item), "^\-*") != "" | continue | endif
     if trim(item) == "" | continue | endif
     if s:fuzzy_search(current_line, item)
@@ -201,8 +215,7 @@ function! s:complete_selected()
 endfunction
 
 function! s:remove_spaces(input)
-  let output = substitute(a:input, ' ', '', 'g')
-  return output
+  return nvim_ai#remove_spaces(a:input)
 endfunction
 
 function! s:fuzzy_search(needle, haystack)
