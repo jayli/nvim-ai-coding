@@ -62,8 +62,10 @@ let g:nvim_ai_apikey = "xxx"
 ```vim
 let g:nvim_ai_llm = 'api2d'
 let g:nvim_ai_apikey = 'xxx'
+
 " 是否支持流式输出
 let g:nvim_ai_stream = 1
+" 大模型配置
 let g:nvim_ai_model = "gpt-4"
 ```
 
