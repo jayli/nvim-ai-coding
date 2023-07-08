@@ -25,7 +25,23 @@ function! s:prepare_python()
                   \ custom_api=vim.eval("g:nvim_ai_custom_api"),
                   \ stream=vim.eval("g:nvim_ai_stream"))
     let g:ai_python3_ready = 2
+    call s:init_prompt_history()
     return v:true
+  endif
+endfunction
+
+function! s:history_file()
+  let config_dir = expand('~/.local/share/nvim/nvim-ai-coding/history.txt')
+  return config_dir
+endfunction
+
+function! s:init_prompt_history()
+  " TODO
+  " Vim code to check if a file exists and create it if it doesn't
+  " Check if the file exists
+  if !filereadable(s:history_file())
+    " Create the file if it doesn't exist
+    " execute 'silent! write'
   endif
 endfunction
 
