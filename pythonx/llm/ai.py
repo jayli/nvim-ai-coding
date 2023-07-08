@@ -23,7 +23,6 @@ def is_all_nr(s):
     else:
         return False
 
-
 def vim_command_handler(script):
     global nvim
 
