@@ -15,7 +15,8 @@ llm = None
 stream_output = False
 
 def contains_nr(s):
-    return '\n' in s or '\r\n' in s
+    ascii_list = [ord(c) for c in s]
+    return 10 in ascii_list or 13 in ascii_list
 
 def is_all_nr(s):
     if s.count("\n") == len(s) or s.count("\r") == len(s):
@@ -44,7 +45,7 @@ def vim_command_handler(script):
                 if tmp_count > 0:
                     vim.command("call nvim_ai#new_line()")
 
-                vim.command("call nvim_ai#insert('" + script.strip() + "')")
+                vim.command("call nvim_ai#insert('" + item + "')")
                 tmp_count = tmp_count + 1
     else:
         vim.command("call nvim_ai#insert('" + script + "')")
@@ -185,6 +186,11 @@ class CustomLLM(LLM):
 
                     for chunk in response.iter_content(chunk_size=1500):
                         chunk_chars = self.get_chars_from_chunk(chunk)
+                        # TODO here 大概知道原因了，输出结果是没问题的，还是我显示的问题
+                        # print("-------------")
+                        # print("chars: " + chunk_chars)
+                        # ascii_list = [ord(c) for c in chunk_chars]
+                        # print(ascii_list)
 
                         if chunk_chars == "[DONE]":
                             vim.command("call nvim_ai#teardown()")
