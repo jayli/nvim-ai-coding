@@ -7,6 +7,7 @@ from langchain.llms import OpenAI
 import requests
 import re
 import vim
+import traceback
 
 # 全局llm
 llm = None
@@ -208,6 +209,7 @@ class CustomLLM(LLM):
                     print('Interrupted')
                 except Exception as e:
                     print(">>:" + str(e))
+                    traceback.print_exc()
 
                 return ""
 
