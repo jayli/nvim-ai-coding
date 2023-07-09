@@ -172,7 +172,6 @@ class CustomLLM(LLM):
 
             # 流式输出
             else:
-                # url = "http://localhost:7001/test/chatgpt"
                 payload["stream"] = "true"
                 try:
                     response = requests.request("POST", url, data=json.dumps(payload),
@@ -185,13 +184,8 @@ class CustomLLM(LLM):
                 try:
                     vim.command("call nvim_ai#stream_first_rendering()")
 
-                    for chunk in response.iter_content(chunk_size=3500):
+                    for chunk in response.iter_content(chunk_size=5000):
                         chunk_chars = self.get_chars_from_chunk(chunk)
-                        # TODO here 大概知道原因了，输出结果是没问题的，还是我显示的问题
-                        # print("-------------")
-                        # print("chars: " + chunk_chars)
-                        # ascii_list = [ord(c) for c in chunk_chars]
-                        # print(ascii_list)
 
                         if chunk_chars == "[DONE]":
                             vim.command("call nvim_ai#teardown()")
