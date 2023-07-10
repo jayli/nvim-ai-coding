@@ -121,8 +121,8 @@ function! s:InputCallback(old_text, new_text)
       return
     endif
     let prompt = s:get_prompt_new(question)
-    redraw
     echom "请等待 ChatGPT 的响应..."
+    redraw
     if g:nvim_ai_stream == 0
       py3 vim.command("let ret = %s"% ai.just_do_it(vim.eval("prompt")))
       if type(ret) == type("") && ret == ""
@@ -199,31 +199,31 @@ function! nvim_ai#run(line1, line2, range) range
   let s:range = a:range
   let g:nvim_ai_range = a:range
   call nvim_ai#input#pop("", function("s:InputCallback"))
-  redraw
   echom "等待 ChatGPT(" . g:nvim_ai_llm . ") 初始化..."
+  redraw
   call s:prepare_python()
   return
 endfunction
 
 function! s:llm_check()
   if g:nvim_ai_llm == ""
-    redraw
     echom "g:nvim_ai_llm 为空，请配置 llm 类型"
+    redraw
     return v:false
   endif
   if g:nvim_ai_llm == "custom" && g:nvim_ai_custom_api == ""
-    redraw
     echom "custom api 为空，请配置 g:nvim_ai_custom_api"
+    redraw
     return v:false
   endif
   if g:nvim_ai_llm == "apispace" && g:nvim_ai_apikey == ""
-    redraw
     echom "apispace token 为空，请配置 g:nvim_ai_apikey"
+    redraw
     return v:false
   endif
   if g:nvim_ai_llm == "openai" && g:nvim_ai_apikey == ""
-    redraw
     echom "openai api key 为空，请配置 g:nvim_ai_apikey"
+    redraw
     return v:false
   endif
   return v:true
