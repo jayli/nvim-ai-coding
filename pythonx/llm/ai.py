@@ -184,7 +184,7 @@ class CustomLLM(LLM):
                 try:
                     vim.command("call nvim_ai#stream_first_rendering()")
 
-                    for chunk in response.iter_content(chunk_size=15000):
+                    for chunk in response.iter_content(chunk_size=500):
                         chunk_chars = self.get_chars_from_chunk(chunk)
 
                         # TODO: chunk_chars == "" 的情况没有考虑，还不清楚这种情况是否是结束标志
@@ -228,6 +228,8 @@ class CustomLLM(LLM):
         if chunk_str.rstrip() == "[DONE]":
             return "[DONE]"
         try:
+            print('---------------')
+            print(chunk_str)
             result = json.loads(chunk_str)
             delta = result["choices"][0]["delta"]
             if "content" in delta:
@@ -235,6 +237,7 @@ class CustomLLM(LLM):
             else:
                 return ""
         except json.JSONDecodeError as e:
+            print("except: jsondecodeerror")
             tmp_data = chunk_str.split("\n")
             curr_letter = ""
             for item in tmp_data:
@@ -248,8 +251,21 @@ class CustomLLM(LLM):
                 if line == "[DONE]":
                     curr_letter = curr_letter + "[DONE]"
                     break
+                    """
+                    {"id":"chatcmpl-7azthUDYeabCkE3afgpWjmPJOouxr","object":"chat.completion.chunk","created":1689052097,"model":"gpt-3.5-turbo-0613","choices":[{"index":0,"delta":{"content"
+                    :"   "},"finish_reason":null}]}
+                    data: {"id":"chatcmpl-7azthUDYeabCkE3afgpWjmPJOouxr","object":"chat.completion.chunk","created":1689052097,"model":"gpt-3.5-turbo-0613","choices":[{"index":0,"delta":{"co
+                    ntent":" try"},"finish_reason":null}]}
+                    data: {"id":"chatcmpl-7azthUDYeabCkE3afgpWjmPJOouxr","object":"chat.completion.ch
+                    """
 
-                res = json.loads(line)
+                res = get_valid_json(line)
+                if res == False:
+                    # TODO Here
+                    print("多行data，最后一行被截断")
+                    continue
+
+
                 delta = res["choices"][0]["delta"]
                 if "content" in delta:
                     curr_letter = curr_letter + delta["content"]
@@ -261,6 +277,16 @@ class CustomLLM(LLM):
     def _identifying_params(self) -> Mapping[str, Any]:
         """Get the identifying parameters."""
         return {"n": 10}
+
+
+def get_valid_json(string):
+    res = False
+    try:
+        res = json.loads(string)
+    except json.JSONDecodeError as e:
+        return False
+
+    return res
 
 
 def llm_init(llm_type="", api_key="", custom_api="", stream=0):
