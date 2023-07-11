@@ -15,6 +15,7 @@ llm = None
 # 默认都不支持流式输出，目前只实现了 api2d 的流式输出
 stream_output = False
 
+
 def contains_nr(s):
     ascii_list = [ord(c) for c in s]
     return 10 in ascii_list or 13 in ascii_list
@@ -58,6 +59,8 @@ class CustomLLM(LLM):
     api_key: str = ""
     stream_output: bool = False
     timeout: int = 13
+    # 不完整的输出片段
+    half_chunk_str: str = ""
 
     # 支持 openai, apispace, api2d, custom
     llm_type: str = "apispace"
@@ -184,7 +187,7 @@ class CustomLLM(LLM):
                 try:
                     vim.command("call nvim_ai#stream_first_rendering()")
 
-                    for chunk in response.iter_content(chunk_size=500):
+                    for chunk in response.iter_content(chunk_size=2500):
                         chunk_chars = self.get_chars_from_chunk(chunk)
 
                         # TODO: chunk_chars == "" 的情况没有考虑，还不清楚这种情况是否是结束标志
@@ -228,8 +231,8 @@ class CustomLLM(LLM):
         if chunk_str.rstrip() == "[DONE]":
             return "[DONE]"
         try:
-            print('---------------')
-            print(chunk_str)
+            # print('---------------')
+            # print(chunk_str)
             result = json.loads(chunk_str)
             delta = result["choices"][0]["delta"]
             if "content" in delta:
@@ -237,7 +240,7 @@ class CustomLLM(LLM):
             else:
                 return ""
         except json.JSONDecodeError as e:
-            print("except: jsondecodeerror")
+            # print("except: jsondecodeerror")
             tmp_data = chunk_str.split("\n")
             curr_letter = ""
             for item in tmp_data:
@@ -246,26 +249,31 @@ class CustomLLM(LLM):
                 if item.startswith("data:"):
                     line = re.sub(r"^data:", "", item).strip()
                 else:
-                    line = item
+                    line = item.strip()
 
                 if line == "[DONE]":
                     curr_letter = curr_letter + "[DONE]"
                     break
-                    """
-                    {"id":"chatcmpl-7azthUDYeabCkE3afgpWjmPJOouxr","object":"chat.completion.chunk","created":1689052097,"model":"gpt-3.5-turbo-0613","choices":[{"index":0,"delta":{"content"
-                    :"   "},"finish_reason":null}]}
-                    data: {"id":"chatcmpl-7azthUDYeabCkE3afgpWjmPJOouxr","object":"chat.completion.chunk","created":1689052097,"model":"gpt-3.5-turbo-0613","choices":[{"index":0,"delta":{"co
-                    ntent":" try"},"finish_reason":null}]}
-                    data: {"id":"chatcmpl-7azthUDYeabCkE3afgpWjmPJOouxr","object":"chat.completion.ch
-                    """
 
                 res = get_valid_json(line)
                 if res == False:
-                    # TODO Here
-                    print("多行data，最后一行被截断")
-                    continue
+                    # print('出现了截断的情况')
+                    # 出现了被截断的情况
+                    if re.compile(r'^{.id.:').search(line) == None:
+                        # 头部被截断，则补上头部
+                        # print('头部被截断，补充上头部')
+                        line = self.half_chunk_str + line
+                        self.half_chunk_str = ""
+                        # print(line)
+                        res = get_valid_json(line)
+                    else:
+                        # print("尾部被截断，把片段保存为头部")
+                        # print(line)
+                        # 尾部截断，则保存为头部
+                        self.half_chunk_str = line
+                        continue
 
-
+                # 正常的完整JSON
                 delta = res["choices"][0]["delta"]
                 if "content" in delta:
                     curr_letter = curr_letter + delta["content"]
