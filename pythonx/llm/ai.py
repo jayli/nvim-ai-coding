@@ -184,8 +184,12 @@ class CustomLLM(LLM):
                 try:
                     vim.command("call nvim_ai#stream_first_rendering()")
 
-                    for chunk in response.iter_content(chunk_size=5000):
+                    for chunk in response.iter_content(chunk_size=15000):
                         chunk_chars = self.get_chars_from_chunk(chunk)
+
+                        # TODO: chunk_chars == "" 的情况没有考虑，还不清楚这种情况是否是结束标志
+                        # if chunk_chars == "":
+                        #     continue
 
                         if chunk_chars == "[DONE]":
                             vim.command("call nvim_ai#teardown()")
@@ -203,7 +207,7 @@ class CustomLLM(LLM):
                     print('Interrupted')
                 except Exception as e:
                     print(">>:" + str(e))
-                    traceback.print_exc()
+                    traceback.print_exc(file=open(vim.eval("nvim_ai#errlog_file()"),'a'))
 
                 return ""
 
@@ -225,7 +229,11 @@ class CustomLLM(LLM):
             return "[DONE]"
         try:
             result = json.loads(chunk_str)
-            return result["choices"][0]["delta"]["content"]
+            delta = result["choices"][0]["delta"]
+            if "content" in delta:
+                return result["choices"][0]["delta"]["content"]
+            else:
+                return ""
         except json.JSONDecodeError as e:
             tmp_data = chunk_str.split("\n")
             curr_letter = ""

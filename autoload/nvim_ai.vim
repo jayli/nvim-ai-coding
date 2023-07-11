@@ -26,6 +26,7 @@ function! s:prepare_python()
                   \ stream=vim.eval("g:nvim_ai_stream"))
     let g:ai_python3_ready = 2
     call s:init_prompt_history()
+    call s:init_error_log()
     return v:true
   endif
 endfunction
@@ -35,11 +36,28 @@ function! s:history_file()
   return config_dir
 endfunction
 
+function! s:errlog_file()
+  let config_dir = expand('~/.local/share/nvim/nvim-ai-coding/errlog.txt')
+  return config_dir
+endfunction
+
+function! nvim_ai#errlog_file()
+  return s:errlog_file()
+endfunction
+
 function! s:init_prompt_history()
   let history_prompt_file = s:history_file()
   call s:create_dir(s:get_file_directory(history_prompt_file))
   if !s:file_exists(history_prompt_file)
     call writefile(["----- Prompt History ------"], history_prompt_file, "a")
+  endif
+endfunction
+
+function! s:init_error_log()
+  let errlog_file = s:errlog_file()
+  call s:create_dir(s:get_file_directory(errlog_file))
+  if !s:file_exists(errlog_file)
+    call writefile(["----- Errlog ------"], errlog_file, "a")
   endif
 endfunction
 
