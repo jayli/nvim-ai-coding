@@ -151,7 +151,11 @@ function! s:InputCallback(old_text, new_text)
     let prompt = s:get_prompt_new(question)
     echom "请等待 ChatGPT 的响应..."
     redraw
-    if g:nvim_ai_stream == 0
+
+    if g:nvim_ai_stream == 1 && g:nvim_ai_llm == "api2d"
+      py3 ai.just_do_it(vim.eval("prompt"))
+
+    else
       py3 vim.command("let ret = %s"% ai.just_do_it(vim.eval("prompt")))
       if type(ret) == type("") && ret == ""
         return
@@ -160,9 +164,6 @@ function! s:InputCallback(old_text, new_text)
       echom "done!"
     endif
 
-    if g:nvim_ai_stream == 1
-      py3 ai.just_do_it(vim.eval("prompt"))
-    endif
 
     redraw
 
