@@ -7,10 +7,6 @@ if !has('python3')
   finish
 endif
 
-if has('win32') || has('win64')
-  finish
-endif
-
 command! -nargs=* -range -bang NvimAICoding call nvim_ai#run(<line1>, <line2>, <range>)
 
 xnoremap <Plug>AICoding :NvimAICoding<CR>

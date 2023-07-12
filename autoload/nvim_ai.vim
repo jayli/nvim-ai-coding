@@ -31,14 +31,24 @@ function! s:prepare_python()
   endif
 endfunction
 
+function! s:is_win()
+  return has('win32') || has('win64')
+endfunction
+
+function! s:config_root()
+  if s:is_win()
+    return resolve($HOME.'/AppData/Local/nvim/nvim-ai-coding/')
+  else
+    return expand('~/.local/share/nvim/nvim-ai-coding/')
+  endif
+endfunction
+
 function! s:history_file()
-  let config_dir = expand('~/.local/share/nvim/nvim-ai-coding/history.txt')
-  return config_dir
+  return resolve(s:config_root() . '/history.txt')
 endfunction
 
 function! s:errlog_file()
-  let config_dir = expand('~/.local/share/nvim/nvim-ai-coding/errlog.txt')
-  return config_dir
+  return resolve(s:config_root() . '/errlog.txt')
 endfunction
 
 function! nvim_ai#errlog_file()
