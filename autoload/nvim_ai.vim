@@ -376,5 +376,4 @@ function! nvim_ai#get_history_prompt()
   return history_prompt
 endfunction
 
-
 " vim:ts=2:sw=2:sts=2
