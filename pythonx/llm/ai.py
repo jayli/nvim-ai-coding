@@ -31,6 +31,7 @@ def vim_command_handler(script):
     if script == "[DONE]":
         vim.command("call nvim_ai#teardown()")
         vim.command("echom '[DONE]'")
+        return
     # elif script == "\n":
     #     vim.command("call nvim_ai#new_line()")
     elif is_all_nr(script):
@@ -292,6 +293,7 @@ def get_delta_from_res(res):
         delta = res["choices"][0]["delta"]
         return delta
     except TypeError as e:
+        # TODO 尚未复现
         errfile = vim.eval("nvim_ai#errlog_file()")
         traceback.print_exc(file=open(errfile,'a'))
         with open(errfile, 'a') as f:
