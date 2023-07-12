@@ -8,6 +8,7 @@ import requests
 import re
 import vim
 import traceback
+import time
 
 # 全局llm
 llm = None
@@ -27,8 +28,6 @@ def is_all_nr(s):
         return False
 
 def vim_command_handler(script):
-    global nvim
-
     if script == "[DONE]":
         vim.command("call nvim_ai#teardown()")
         vim.command("echom '[DONE]'")
@@ -51,6 +50,8 @@ def vim_command_handler(script):
                 tmp_count = tmp_count + 1
     else:
         vim.command("call nvim_ai#insert('" + script + "')")
+
+    time.sleep(0.01)
 
 class CustomLLM(LLM):
     logging: bool = False
@@ -274,7 +275,7 @@ class CustomLLM(LLM):
                         continue
 
                 # 正常的完整JSON
-                delta = res["choices"][0]["delta"]
+                delta = get_delta_from_res(res)
                 if "content" in delta:
                     curr_letter = curr_letter + delta["content"]
 
@@ -285,6 +286,16 @@ class CustomLLM(LLM):
     def _identifying_params(self) -> Mapping[str, Any]:
         """Get the identifying parameters."""
         return {"n": 10}
+
+def get_delta_from_res(res):
+    try:
+        delta = res["choices"][0]["delta"]
+        return delta
+    except TypeError as e:
+        errfile = vim.eval("nvim_ai#errlog_file()")
+        traceback.print_exc(file=open(errfile,'a'))
+        with open(errfile, 'a') as f:
+            f.write('出错的 res\n' + json.dumps(res) + '\n')
 
 
 def get_valid_json(string):
