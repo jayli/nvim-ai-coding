@@ -345,6 +345,9 @@ endfunction
 
 function! nvim_ai#get_all_prompt()
   let prompt_file = globpath(nvim_ai#root(),"prompt.txt")
+  if prompt_file == ""
+    return []
+  endif
   if g:nvim_ai_default_prompt == 1
     let all_prompt = readfile(prompt_file)
   else
