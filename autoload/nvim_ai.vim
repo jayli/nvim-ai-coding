@@ -323,14 +323,9 @@ function! s:is_code_warpper(line)
 endfunction
 
 function! nvim_ai#root()
-  let ret_path = ""
-  for es_path in split(&rtp, ",")
-    if stridx(es_path, "nvim-ai-coding") >= 0
-      let ret_path = es_path
-      break
-    endif
-  endfor
-  return ret_path
+  let plugin_root = substitute(expand('<sfile>'), "^\\(.\\+nvim-ai-coding\\)\\(.\\{\-}\\)$","\\1","g")
+  let plugin_root = substitute(plugin_root, "^\\(.\\+script\\s\\)\\(.\\{\-}\\)$", "\\2", "g")
+  return plugin_root
 endfunction
 
 function! s:file_exists(filepath)
