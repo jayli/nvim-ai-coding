@@ -12,6 +12,9 @@ command! -nargs=* -range -bang NvimAICoding call nvim_ai#run(<line1>, <line2>, <
 xnoremap <Plug>AICoding :NvimAICoding<CR>
 nnoremap <Plug>AICoding :NvimAICoding<CR>
 
+nmap co <Plug>AICoding
+xmap co <Plug>AICoding
+
 " 这个也不能保证100%好使
 setlocal autowriteall
 

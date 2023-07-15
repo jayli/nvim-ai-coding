@@ -13,7 +13,7 @@ https://github.com/jayli/nvim-ai-coding/assets/188244/337f0f5c-78b5-4ea1-a276-28
 ```vim
 Plug 'jayli/nvim-ai-coding'
 
-" 快捷键绑定：你可以将 co 改成你的快捷键
+" 快捷键绑定（可选）：默认用 co 唤醒 prompt 输入窗，你可以将 co 改成其他的快捷键
 nmap co <Plug>AICoding
 xmap co <Plug>AICoding
 ```
