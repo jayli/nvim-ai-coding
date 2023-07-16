@@ -39,10 +39,6 @@ if !exists("g:nvim_ai_custom_api")
   let g:nvim_ai_custom_api = ""
 endif
 
-if !exists("g:nvim_ai_stream")
-  let g:nvim_ai_stream = 0
-endif
-
 if !exists("g:nvim_ai_model")
   let g:nvim_ai_model = "gpt-3.5-turbo-0613"
 endif
@@ -50,5 +46,15 @@ endif
 if !exists("g:nvim_ai_history_prompt")
   let g:nvim_ai_history_prompt = 1
 endif
+
+" api2d 默认用流式输出
+if g:nvim_ai_llm == "api2d" && !exists("g:nvim_ai_stream")
+  let g:nvim_ai_stream = 1
+endif
+
+if !exists("g:nvim_ai_stream")
+  let g:nvim_ai_stream = 0
+endif
+
 
 " vim:ts=2:sw=2:sts=2
