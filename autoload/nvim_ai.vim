@@ -163,10 +163,7 @@ function! s:InputCallback(old_text, new_text)
       call nvim_ai#append(s:line1 + 1, ret)
       echom "done!"
     endif
-
-
     redraw
-
     call s:recording_prompt(question)
 
   " 原文修改
@@ -267,6 +264,7 @@ function! nvim_ai#append(start_line, lines)
     endif
     call appendbufline(bufnr(""), cursor_line - 1, line)
     let cursor_line = cursor_line + 1
+    call cursor(cursor_line, 1)
     redraw
     sleep 60ms
   endfor
