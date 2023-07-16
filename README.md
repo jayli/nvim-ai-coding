@@ -12,13 +12,17 @@ https://github.com/jayli/nvim-ai-coding/assets/188244/337f0f5c-78b5-4ea1-a276-28
 
 ```vim
 Plug 'jayli/nvim-ai-coding'
-
-" 快捷键绑定（可选）：默认用 co 唤醒 prompt 输入窗，你可以将 co 改成其他的快捷键
-nmap co <Plug>AICoding
-xmap co <Plug>AICoding
 ```
 
 然后执行`:PlugInstall`
+
+基于 Packer.nvim 安装，在`init.lua`中添加：
+
+```lua
+use { 'jayli/nvim-ai-coding' }
+```
+
+然后执行 `:PackerInstall`
 
 ### 2. 安装 python 依赖
 
@@ -63,15 +67,13 @@ let g:nvim_ai_apikey = "xxx"
 let g:nvim_ai_llm = 'api2d'
 let g:nvim_ai_apikey = 'xxx'
 
-" 流式输出
-let g:nvim_ai_stream = 1
-" 大模型配置
+" 大模型配置（可选）
 let g:nvim_ai_model = "gpt-4"
 ```
 
-目前只有 API2D 实现了流式输出支持，配置`g:nvim_ai_stream = 1`，不配置的话默认非流式输出。
+API2D 默认支持流式输出，若不想流式输出，配置`g:nvim_ai_stream = 0`。
 
-`g:nvim_ai_model`如果不配置则默认为`gpt-3.5-turbo-0613`，参考值可以配置`gpt-3.5-turbo`或者`gpt-4`。
+`g:nvim_ai_model`如果不配置则默认为`gpt-3.5-turbo-0613`，参考值可以配置`gpt-3.5-turbo`或者`gpt-4`等。
 
 **4) 自定义 API：**
 
@@ -90,6 +92,16 @@ let g:nvim_ai_custom_api = 'http://127.0.0.1:8000'
 
 ```json
 {"response": "我是基于gpt4来回答你的问题。"}
+```
+
+### 4. 更多配置
+
+如果希望绑定其他快捷键，可以重新绑定：
+
+```vim
+" 默认用 co 唤醒 prompt 输入窗，你可以将 co 改成其他的快捷键
+nmap co <Plug>AICoding
+xmap co <Plug>AICoding
 ```
 
 ## 二）使用
