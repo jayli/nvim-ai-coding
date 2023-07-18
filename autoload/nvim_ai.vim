@@ -1,6 +1,7 @@
 let s:line1 = 0
 let s:line2 = 0
 let s:range = 0
+let s:bufnr = 0
 " 临时变量，给 python 用的
 let g:nvim_ai_range = 0
 
@@ -202,7 +203,7 @@ function! s:InputCallback(old_text, new_text)
 endfunction
 
 function! nvim_ai#delete_selected_lines()
-  call deletebufline(bufnr(""), s:line1, s:line2)
+  call deletebufline(s:bufnr, s:line1, s:line2)
 endfunction
 
 function! s:str2list(str)
@@ -223,6 +224,7 @@ function! nvim_ai#run(line1, line2, range) range
   let s:line1 = a:line1
   let s:line2 = a:line2
   let s:range = a:range
+  let s:bufnr = bufnr("")
   let g:nvim_ai_range = a:range
   call nvim_ai#input#pop("", function("s:InputCallback"))
   echom "等待 ChatGPT(" . g:nvim_ai_llm . ") 初始化..."
@@ -280,13 +282,14 @@ function! nvim_ai#new_line()
 endfunction
 
 function! nvim_ai#stream_first_rendering()
-  if g:nvim_ai_range == 2
+  if s:range == 2
     call nvim_ai#delete_selected_lines()
+    call s:nr()
   endif
 
-  if g:nvim_ai_range == 0
+  if s:range == 0
     if trim(getline(line("."))) == ""
-      call setbufline(bufnr(""), line("."), "")
+      call setbufline(s:bufnr, line("."), "")
       return
     else
       call s:nr()
@@ -371,6 +374,10 @@ function! nvim_ai#get_history_prompt()
     endif
   endif
   return history_prompt
+endfunction
+
+function! nvim_ai#test()
+  call v:lua.require("nvim_ai").windows_init()
 endfunction
 
 " vim:ts=2:sw=2:sts=2
