@@ -284,7 +284,7 @@ endfunction
 function! nvim_ai#stream_first_rendering()
   if s:range == 2
     call nvim_ai#delete_selected_lines()
-    call s:nr()
+    call execute("normal O")
   endif
 
   if s:range == 0
