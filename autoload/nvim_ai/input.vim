@@ -186,6 +186,7 @@ function! s:menu_clear()
   let s:global_menu = []
 endfunction
 
+" call s:async_run(function("s:fuzzy_match"), [], 70)
 function! s:async_run(...)
   let Method = a:1
   let args = exists('a:2') ? a:2 : []

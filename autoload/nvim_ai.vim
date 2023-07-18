@@ -7,15 +7,18 @@ let g:nvim_ai_range = 0
 
 function! s:prepare_python()
   if get(g:, 'ai_python3_ready') == 2
+    call nvim_ai#loading_done()
     return v:true
   endif
 
   if get(g:, 'ai_python3_ready') == 1
+    call nvim_ai#loading_done()
     return v:false
   endif
 
   if !has("python3")
     let g:ai_python3_ready = 1
+    call nvim_ai#loading_done()
     return v:false
   else
     py3 import vim
@@ -28,6 +31,7 @@ function! s:prepare_python()
     let g:ai_python3_ready = 2
     call s:init_prompt_history()
     call s:init_error_log()
+    call nvim_ai#loading_done()
     return v:true
   endif
 endfunction
@@ -227,10 +231,8 @@ function! nvim_ai#run(line1, line2, range) range
   let s:bufnr = bufnr("")
   let g:nvim_ai_range = a:range
   call nvim_ai#input#pop("", function("s:InputCallback"))
-  echom "等待 ChatGPT(" . g:nvim_ai_llm . ") 初始化..."
-  redraw
+  call nvim_ai#loading_start("等待 ChatGPT(" . g:nvim_ai_llm . ") 初始化...")
   call s:prepare_python()
-  return
 endfunction
 
 function! s:llm_check()
@@ -379,5 +381,60 @@ endfunction
 function! nvim_ai#test()
   call v:lua.require("nvim_ai").windows_init()
 endfunction
+
+" ----------------------------------------------{{
+"  TODO here 要在研究一下jobstart怎么调用函数
+function! nvim_ai#loading_start(msg)
+  if !exists("g:nvim_ai_loading_timer")
+    let g:nvim_ai_loading_timer = -1
+  endif
+  if !exists("g:nvim_ai_loading_status")
+    let g:nvim_ai_loading_status = -1
+  endif
+  if !exists("g:nvim_ai_loading_job")
+    let g:nvim_ai_loading_job = -1
+  endif
+  if !exists("g:nvim_ai_loading_chars")
+    let g:nvim_ai_loading_chars = ['>','c','3','a','o','y']
+  endif
+
+  let g:nvim_ai_loading_status = 0
+  call call("s:Loading", [a:msg])
+  " let g:nvim_ai_loading_job = jobstart('call s:Loading("'. a:msg .'")')
+endfunction
+
+function! s:Loading(msg)
+  let msg = a:msg
+  if g:nvim_ai_loading_status >= 0
+    "------------------------------
+    echom "" . g:nvim_ai_loading_chars[g:nvim_ai_loading_status] . " " . msg
+    let g:nvim_ai_loading_status += 1
+    let g:nvim_ai_loading_status = g:nvim_ai_loading_status % len(g:nvim_ai_loading_chars)
+    redraw
+    "------------------------------
+    call timer_stop(g:nvim_ai_loading_timer)
+    let g:nvim_ai_loading_timer = timer_start(100, { 
+          \ -> call(function("s:Loading"), [msg])
+          \ })
+  else
+    call timer_stop(g:nvim_ai_loading_timer)
+    let g:nvim_ai_loading_timer = -1
+  endif
+endfunction
+
+function! nvim_ai#loading_done()
+  if !exists("g:nvim_ai_loading_status")
+    let g:nvim_ai_loading_status = -1
+  endif
+  let g:nvim_ai_loading_status = -1
+  call timer_stop(g:nvim_ai_loading_timer)
+  let g:nvim_ai_loading_timer = -1
+  call jobstop(g:nvim_ai_loading_job)
+  let g:nvim_ai_loading_job = -1
+  echom "done"
+  redraw
+endfunction
+" ------------------------------------------}}
+
 
 " vim:ts=2:sw=2:sts=2
