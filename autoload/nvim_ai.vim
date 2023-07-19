@@ -20,7 +20,7 @@ function! s:prepare_python()
 
   if !has("python3")
     let g:ai_python3_ready = 1
-    echom ""
+    echom "当前 vim 版本不支持 python3"
     redraw
     return v:false
   else
