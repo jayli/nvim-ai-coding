@@ -16,6 +16,11 @@ llm = None
 # 默认都不支持流式输出，目前只实现了 api2d 的流式输出
 stream_output = False
 
+def safe_vim_eval(expression):
+    try:
+        return vim.eval(expression)
+    except vim.error:
+        return None
 
 def contains_nr(s):
     ascii_list = [ord(c) for c in s]
@@ -319,7 +324,11 @@ def llm_init(llm_type="", api_key="", custom_api="", stream=0):
         stream_output = False
 
     if llm_type == "openai":
-        llm = OpenAI(openai_api_key=api_key, temperature=0.9)
+        open_api_key = os.getenv('OPENAI_API_KEY') or safe_vim_eval('g:nvim_ai_apikey')
+        if open_api_key == "":
+            print("OpenAI APIKEY 未定义，请定义 OPENAI_API_KEY")
+            return
+        llm = OpenAI(openai_api_key=open_api_key, temperature=0.9)
     else:
         llm = CustomLLM(llm_type=llm_type,
                         api_key=api_key,

@@ -54,6 +54,8 @@ let g:nvim_ai_llm = 'openai'
 let g:nvim_ai_apikey = 'xxxx'
 ```
 
+如果已经配置环境变量`OPENAI_API_KEY`，则可以不用配置`g:nvim_ai_apikey`。
+
 **2) APISpace API：**
 
 ```vim
