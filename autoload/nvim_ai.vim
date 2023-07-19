@@ -7,18 +7,21 @@ let g:nvim_ai_range = 0
 
 function! s:prepare_python()
   if get(g:, 'ai_python3_ready') == 2
-    call nvim_ai#loading#done()
+    echom ""
+    redraw
     return v:true
   endif
 
   if get(g:, 'ai_python3_ready') == 1
-    call nvim_ai#loading#done()
+    echom ""
+    redraw
     return v:false
   endif
 
   if !has("python3")
     let g:ai_python3_ready = 1
-    call nvim_ai#loading#done()
+    echom ""
+    redraw
     return v:false
   else
     py3 import vim
@@ -31,7 +34,8 @@ function! s:prepare_python()
     let g:ai_python3_ready = 2
     call s:init_prompt_history()
     call s:init_error_log()
-    call nvim_ai#loading#done()
+    echom ""
+    redraw
     return v:true
   endif
 endfunction
@@ -145,6 +149,7 @@ endfunction
 
 function! s:InputCallback(old_text, new_text)
   let question = a:new_text
+  call s:return_original_window()
 
   " 新输入
   if s:range == 0
@@ -225,13 +230,18 @@ endfunction
 
 function! nvim_ai#run(line1, line2, range) range
   if !s:llm_check() | return | endif
+  if &modifiable == 0 || &readonly == 1
+    echom "当前 buffer 是只读的"
+    return
+  endif
   let s:line1 = a:line1
   let s:line2 = a:line2
   let s:range = a:range
   let s:bufnr = bufnr("")
   let g:nvim_ai_range = a:range
   call nvim_ai#input#pop("", function("s:InputCallback"))
-  call nvim_ai#loading#start("等待 ChatGPT(" . g:nvim_ai_llm . ") 初始化...")
+  echom "等待 ChatGPT(" . g:nvim_ai_llm . ") 初始化..."
+  redraw
   call s:prepare_python()
 endfunction
 
@@ -284,6 +294,7 @@ function! nvim_ai#new_line()
 endfunction
 
 function! nvim_ai#stream_first_rendering()
+  call s:return_original_window()
   if s:range == 2
     call nvim_ai#delete_selected_lines()
     call execute("normal O")
@@ -298,6 +309,11 @@ function! nvim_ai#stream_first_rendering()
       return
     endif
   endif
+endfunction
+
+function! s:return_original_window()
+  let winid = bufwinid(s:bufnr)
+  call nvim_ai#input#goto_window(winid)
 endfunction
 
 " new line

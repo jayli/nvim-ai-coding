@@ -15,16 +15,19 @@ endfunction
 
 function! s:Loading(msg)
   let msg = a:msg
+  echom "" . g:nvim_ai_loading_chars[g:nvim_ai_loading_status] . " " . msg
+  redraw
+  return
   if g:nvim_ai_loading_status >= 0
     "------------------------------
-    " echom "" . g:nvim_ai_loading_chars[g:nvim_ai_loading_status] . " " . msg
-    call v:lua.require("nvim_ai").print("" . g:nvim_ai_loading_chars[g:nvim_ai_loading_status] . " " . msg)
+    echom "" . g:nvim_ai_loading_chars[g:nvim_ai_loading_status] . " " . msg
+    " call v:lua.require("nvim_ai").print("" . g:nvim_ai_loading_chars[g:nvim_ai_loading_status] . " " . msg)
     let g:nvim_ai_loading_status += 1
     let g:nvim_ai_loading_status = g:nvim_ai_loading_status % len(g:nvim_ai_loading_chars)
     redraw
     "------------------------------
     call timer_stop(g:nvim_ai_loading_timer)
-    let g:nvim_ai_loading_timer = timer_start(100, {
+    let g:nvim_ai_loading_timer = timer_start(10500, {
           \ -> call(function("s:Loading"), [msg])
           \ })
   else
