@@ -1,81 +1,39 @@
 local Export = {}
 
-
-function Export.test()
+local function setInterval(interval, callback)
   local timer = vim.loop.new_timer()
+  timer:start(interval, interval, function ()
+    callback()
+  end)
+  return timer
+end
+
+-- And clearInterval
+local function clearInterval(timer)
+  timer:stop()
+  timer:close()
+end
+
+function loading()
   local count = 0
-  timer:start(100, 5, vim.schedule_wrap(function()
+
+  local timer = setInterval(100, function()
     print('echomsg "' .. tostring(count) .. '"')
     count = count + 1
-  end))
+    if count > 50 then
+      clearInterval(timer)
+    end
+  end)
+end
+
+function Export.test()
+  loading()
+  -- local thread = vim.loop.new_thread(loading)
+  -- vim.loop.thread_join(thread)
 end
 
 function Export.print(msg)
   print(msg)
-end
-
--- call nvim_ai#test()
-function Export.windows_init()
-  -- 请注意：这是一个尝试包裹代码的示例，具体语法细节可能有所不同，请根据实际需要进行调整
-  local success, result = pcall(function ()
-    local Layout = require("nui.layout")
-    local Popup = require("nui.popup")
-    return {
-      Layout = Layout,
-      Popup = Popup
-    }
-  end)
-  if not success then
-    print("nui.nvim is not installed, please install it via `use 'MunifTanjim/nui.nvim'`")
-    return
-  end
-
-  local Layout = result.Layout
-  local Popup = result.Popup
-
-  local popup_one, popup_two = Popup({
-    enter = true,
-    border = "single",
-  }), Popup({
-    border = "double",
-  })
-
-  local layout = Layout(
-  {
-    position = "50%",
-    size = {
-      width = 80,
-      height = "60%",
-    },
-  },
-  Layout.Box({
-    Layout.Box(popup_one, { size = "40%" }),
-    Layout.Box(popup_two, { size = "60%" }),
-  }, { dir = "row" })
-  )
-
-  local current_dir = "row"
-
-  popup_one:map("n", "r", function()
-    if current_dir == "col" then
-      layout:update(Layout.Box({
-        Layout.Box(popup_one, { size = "40%" }),
-        Layout.Box(popup_two, { size = "60%" }),
-      }, { dir = "row" }))
-
-      current_dir = "row"
-    else
-      layout:update(Layout.Box({
-        Layout.Box(popup_two, { size = "60%" }),
-        Layout.Box(popup_one, { size = "40%" }),
-      }, { dir = "col" }))
-
-      current_dir = "col"
-    end
-  end, {})
-
-  layout:mount()
-
 end
 
 return Export 
