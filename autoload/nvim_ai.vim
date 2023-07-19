@@ -379,7 +379,7 @@ function! nvim_ai#get_history_prompt()
 endfunction
 
 function! nvim_ai#test()
-  call v:lua.require("nvim_ai").windows_init()
+  call v:lua.require("nvim_ai").test()
 endfunction
 
 " vim:ts=2:sw=2:sts=2

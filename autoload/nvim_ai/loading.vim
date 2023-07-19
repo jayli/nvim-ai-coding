@@ -4,7 +4,7 @@ let g:nvim_ai_loading_job = -1
 let g:nvim_ai_loading_chars = ['>','c','3','a','o','y']
 
 " ----------------------------------------------{{
-"  TODO here 要在研究一下jobstart怎么调用函数
+"  TODO here 要在研究一下jobstart怎么调用函数，用 lua 的 线程似乎应该可以
 function! nvim_ai#loading#start(msg)
   let g:nvim_ai_loading_status = 0
   call call("s:Loading", [a:msg])
@@ -12,10 +12,13 @@ function! nvim_ai#loading#start(msg)
 endfunction
 
 function! s:Loading(msg)
+  " call nvim_ai#test()
+  " return
   let msg = a:msg
   if g:nvim_ai_loading_status >= 0
     "------------------------------
-    echom "" . g:nvim_ai_loading_chars[g:nvim_ai_loading_status] . " " . msg
+    " echom "" . g:nvim_ai_loading_chars[g:nvim_ai_loading_status] . " " . msg
+    call v:lua.require("nvim_ai").print("" . g:nvim_ai_loading_chars[g:nvim_ai_loading_status] . " " . msg)
     let g:nvim_ai_loading_status += 1
     let g:nvim_ai_loading_status = g:nvim_ai_loading_status % len(g:nvim_ai_loading_chars)
     redraw
@@ -39,7 +42,9 @@ function! nvim_ai#loading#done()
   let g:nvim_ai_loading_timer = -1
   call jobstop(g:nvim_ai_loading_job)
   let g:nvim_ai_loading_job = -1
-  echom "done"
+  call v:lua.require("nvim_ai").print("")
+  
+  " echom "done"
   redraw
 endfunction
 " ------------------------------------------}}

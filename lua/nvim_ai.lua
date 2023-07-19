@@ -1,7 +1,17 @@
 local Export = {}
 
+
 function Export.test()
-  print("ok")
+  local timer = vim.loop.new_timer()
+  local count = 0
+  timer:start(100, 5, vim.schedule_wrap(function()
+    print('echomsg "' .. tostring(count) .. '"')
+    count = count + 1
+  end))
+end
+
+function Export.print(msg)
+  print(msg)
 end
 
 -- call nvim_ai#test()
@@ -69,3 +79,5 @@ function Export.windows_init()
 end
 
 return Export 
+
+-- vim:ts=2:sw=2:sts=2
