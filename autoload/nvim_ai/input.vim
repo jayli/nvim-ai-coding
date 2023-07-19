@@ -160,7 +160,9 @@ function! s:fuzzy_match()
   for item in all_prompt_list
     if matchstr(trim(item), "^\-*") != "" | continue | endif
     if trim(item) == "" | continue | endif
-    if s:fuzzy_search(current_line, item)
+    " TODO 需要测速比较一下
+    " if s:fuzzy_search(current_line, item)
+    if v:lua.require("nvim_ai").fuzzy_search(current_line, item)
       call add(menu_list, item)
     endif
   endfor

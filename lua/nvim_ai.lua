@@ -1,6 +1,6 @@
 local Export = {}
 
-local function setInterval(interval, callback)
+local function set_interval(interval, callback)
   local timer = vim.loop.new_timer()
   timer:start(interval, interval, function ()
     callback()
@@ -9,7 +9,7 @@ local function setInterval(interval, callback)
 end
 
 -- And clearInterval
-local function clearInterval(timer)
+local function clear_interval(timer)
   timer:stop()
   timer:close()
 end
@@ -17,22 +17,96 @@ end
 function loading()
   local count = 0
 
-  local timer = setInterval(100, function()
+  local timer = set_interval(100, function()
     print('echomsg "' .. tostring(count) .. '"')
     count = count + 1
     if count > 50 then
-      clearInterval(timer)
+      clear_interval(timer)
     end
   end)
 end
 
 function Export.test()
   loading()
-  -- local thread = vim.loop.new_thread(loading)
-  -- vim.loop.thread_join(thread)
 end
 
-function Export.print(msg)
+
+-- function! s:fuzzy_search(needle, haystack)
+--   let l:haystack = s:remove_spaces(a:haystack)
+--   let l:needle = s:remove_spaces(a:needle)
+--   let tlen = strlen(l:haystack)
+--   let qlen = strlen(l:needle)
+--   if qlen > tlen
+--     return v:false
+--   endif
+--   if qlen == tlen
+--     return l:needle ==? l:haystack ? v:true : v:false
+--   endif
+
+--   let needle_ls = s:str2list(tolower(l:needle))
+--   let haystack_ls = s:str2list(tolower(l:haystack))
+
+--   let cursor_n = 0
+--   let cursor_h = 0
+--   let matched = v:false
+
+--   while cursor_h < len(haystack_ls)
+--     if haystack_ls[cursor_h] == needle_ls[cursor_n]
+--       if cursor_n == len(needle_ls) - 1
+--         let matched = v:true
+--         break
+--       endif
+--       let cursor_n += 1
+--     endif
+--     let cursor_h += 1
+--   endwhile
+--   return matched
+-- endfunction
+
+local function remove_space(str)
+  return string.gsub(str, "%s", "")
+end
+
+
+function Export.fuzzy_search(needle, haystack)
+  local l_haystack = remove_space(haystack)
+  local l_needle = remove_space(needle)
+  local tlen = #l_haystack
+  local qlen = #l_needle
+  if qlen > tlen then
+    return false
+  end
+  if qlen == tlen then
+    if l_haystack == l_needle then
+      return true
+    else
+      return false
+    end
+  end
+
+  local needle_ls = string.lower(l_needle)
+  local haystack_ls = string.lower(l_haystack)
+  
+  local cursor_n = 0
+  local cursor_h = 0
+  local matched = false
+
+  while cursor_h < #haystack_ls do
+    -- 在这里编写你的循环逻辑代码
+    if haystack_ls:sub(cursor_h + 1, cursor_h + 1) == needle_ls:sub(cursor_n + 1, cursor_n + 1) then
+      if cursor_n == #needle_ls - 1 then
+        matched = true
+        break
+      end
+      cursor_n = cursor_n + 1
+    end
+    cursor_h = cursor_h + 1
+  end
+
+  return matched
+end
+
+function Export.foo(msg)
   print(msg)
 end
 
