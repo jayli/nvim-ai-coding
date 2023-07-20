@@ -30,39 +30,6 @@ function Export.test()
   loading()
 end
 
-
--- function! s:fuzzy_search(needle, haystack)
---   let l:haystack = s:remove_spaces(a:haystack)
---   let l:needle = s:remove_spaces(a:needle)
---   let tlen = strlen(l:haystack)
---   let qlen = strlen(l:needle)
---   if qlen > tlen
---     return v:false
---   endif
---   if qlen == tlen
---     return l:needle ==? l:haystack ? v:true : v:false
---   endif
-
---   let needle_ls = s:str2list(tolower(l:needle))
---   let haystack_ls = s:str2list(tolower(l:haystack))
-
---   let cursor_n = 0
---   let cursor_h = 0
---   let matched = v:false
-
---   while cursor_h < len(haystack_ls)
---     if haystack_ls[cursor_h] == needle_ls[cursor_n]
---       if cursor_n == len(needle_ls) - 1
---         let matched = v:true
---         break
---       endif
---       let cursor_n += 1
---     endif
---     let cursor_h += 1
---   endwhile
---   return matched
--- endfunction
-
 local function remove_space(str)
   return string.gsub(str, "%s", "")
 end
@@ -106,7 +73,7 @@ function Export.fuzzy_search(needle, haystack)
   return matched
 end
 
-function Export.foo(msg)
+function Export.print(msg)
   print(msg)
 end
 
