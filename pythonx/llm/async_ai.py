@@ -6,6 +6,7 @@
 from time import sleep
 import threading
 import requests
+import langchan_llm
 
 
 def fetch(url, callback):
@@ -22,6 +23,10 @@ def response_handler(res):
     print(res)
 
 if __name__ == "__main__":
+
+    print(langchan_llm.OpenAI)
+
+    exit()
     print('ok1')
     fetch_async("http://www.baidu.com", response_handler)
     print('ok2')
