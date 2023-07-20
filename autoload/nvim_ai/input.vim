@@ -10,6 +10,7 @@ let s:text_winid = 0 " for nvim only
 let s:prompt_list = nvim_ai#get_all_prompt()
 let s:global_menu = []
 let g:async_timer = -1
+let g:nvim_lua = v:lua.require("nvim_ai")
 
 function! s:input_callback(...)
   call s:flush()
@@ -160,9 +161,7 @@ function! s:fuzzy_match()
   for item in all_prompt_list
     if matchstr(trim(item), "^\-*") != "" | continue | endif
     if trim(item) == "" | continue | endif
-    " TODO 需要测速比较一下
-    " if s:fuzzy_search(current_line, item)
-    if v:lua.require("nvim_ai").fuzzy_search(current_line, item)
+    if s:fuzzy_search_lua(current_line, item)
       call add(menu_list, item)
     endif
   endfor
@@ -221,7 +220,20 @@ function! s:remove_spaces(input)
   return nvim_ai#remove_spaces(a:input)
 endfunction
 
-function! s:fuzzy_search(needle, haystack)
+"--------------------------------------
+" FuzzySearch 的 lua 实现和 viml 实现的速度对比
+" Lua 略快
+"
+" lua:
+" 	Count:804   Total:0.013689   Self: 0.006570
+" viml:
+" 	Count:804   Total:0.235496   Self: 0.009430
+"--------------------------------------
+function! s:fuzzy_search_lua(needle, haystack)
+  return g:nvim_lua.fuzzy_search(a:needle, a:haystack)
+endfunction
+
+function! s:fuzzy_search_vim(needle, haystack)
   let l:haystack = s:remove_spaces(a:haystack)
   let l:needle = s:remove_spaces(a:needle)
   let tlen = strlen(l:haystack)
