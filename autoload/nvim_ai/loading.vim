@@ -17,7 +17,7 @@ function! s:Loading(msg)
   let msg = a:msg
   if g:nvim_ai_loading_status >= 0
     "------------render------------------
-    echom "" . g:nvim_ai_loading_chars[g:nvim_ai_loading_status] . " " . msg
+    echo "" . g:nvim_ai_loading_chars[g:nvim_ai_loading_status] . " " . msg
     " call v:lua.require("nvim_ai").print("" . g:nvim_ai_loading_chars[g:nvim_ai_loading_status] . " " . msg)
     let g:nvim_ai_loading_status += 1
     let g:nvim_ai_loading_status = g:nvim_ai_loading_status % len(g:nvim_ai_loading_chars)
@@ -43,7 +43,7 @@ function! nvim_ai#loading#done()
   call jobstop(g:nvim_ai_loading_job)
   let g:nvim_ai_loading_job = -1
   " call v:lua.require("nvim_ai").print("")
-  echom ""
+  echo ""
   redraw
 endfunction
 " ------------------------------------------}}

@@ -11,12 +11,6 @@ import json
 import traceback
 import time
 
-def safe_vim_eval(expression):
-    try:
-        return vim.eval(expression)
-    except vim.error:
-        return None
-
 def contains_nr(s):
     ascii_list = [ord(c) for c in s]
     return 10 in ascii_list or 13 in ascii_list

@@ -25,9 +25,9 @@ function! s:prepare_python()
     return v:false
   else
     py3 import vim
-    py3 import llm.ai as ai
+    py3 import llm.coding as coding
 
-    py3 ai.llm_init(llm_type=vim.eval("g:nvim_ai_llm"),
+    py3 coding.llm_init(llm_type=vim.eval("g:nvim_ai_llm"),
                   \ api_key=vim.eval("g:nvim_ai_apikey"),
                   \ custom_api=vim.eval("g:nvim_ai_custom_api"),
                   \ stream=vim.eval("g:nvim_ai_stream"))
@@ -163,10 +163,10 @@ function! s:InputCallback(old_text, new_text)
     redraw
 
     if g:nvim_ai_stream == 1 && g:nvim_ai_llm == "api2d"
-      py3 ai.just_do_it(vim.eval("prompt"))
+      py3 coding.just_do_it(vim.eval("prompt"))
 
     else
-      py3 vim.command("let ret = %s"% ai.just_do_it(vim.eval("prompt")))
+      py3 vim.command("let ret = %s"% coding.just_do_it(vim.eval("prompt")))
       if type(ret) == type("") && ret == ""
         return
       endif
@@ -189,7 +189,7 @@ function! s:InputCallback(old_text, new_text)
     redraw
     echom "请等待 ChatGPT 的响应..."
     if g:nvim_ai_stream == 0
-      py3 vim.command("let ret = %s"% ai.just_do_it(vim.eval("prompt")))
+      py3 vim.command("let ret = %s"% coding.just_do_it(vim.eval("prompt")))
       if type(ret) == type("") && ret == "{timeout}"
         call s:handle_timeout()
         return
@@ -200,7 +200,7 @@ function! s:InputCallback(old_text, new_text)
     endif
 
     if g:nvim_ai_stream == 1
-      py3 ai.just_do_it(vim.eval("prompt"))
+      py3 coding.just_do_it(vim.eval("prompt"))
     endif
 
     redraw
@@ -226,6 +226,11 @@ function! s:str2list(str)
     let l:index += 1
   endwhile
   return l:arr
+endfunction
+
+function! nvim_ai#init()
+  py3 import llm.coding as coding
+  py3 coding.import_deps_async()
 endfunction
 
 function! nvim_ai#run(line1, line2, range) range

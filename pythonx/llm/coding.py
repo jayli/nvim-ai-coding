@@ -1,16 +1,51 @@
 #!/usr/bin/env python3
 # encoding: utf-8
-from .langchan_llm import CustomLLM
-from .langchan_llm import OpenAI
+import threading
+import vim
+# from pynvim import attach
+# nvim = attach('socket', path='/tmp/nvim')
 
 # 全局llm
 llm = None
 
+# 全局 LLM
+CustomLLM = None
+OpenAI = None
+
 # 默认都不支持流式输出，目前只实现了 api2d 的流式输出
 stream_output = False
 
+def safe_vim_eval(expression):
+    try:
+        return vim.eval(expression)
+    except vim.error:
+        return None
+
+def callback():
+    vim.command("call nvim_ai#loading#done()")
+
+def import_deps():
+    global CustomLLM, OpenAI
+    # nvim.async_call("nvim_ai#loading#done()")
+    # nvim.async_call(lambda: vim.command("tabnew"))
+    # vim.eval("")
+    from .langchan_llm import CustomLLM
+    from .langchan_llm import OpenAI
+    # CustomLLM = Custom_LLM
+    # OpenAI = Open_AI
+    # callback()
+    pass
+
+def import_deps_async():
+    # vim.command("call nvim_ai#loading#start('loading...')")
+    fetch_thread = threading.Thread(target=import_deps, args=())
+    fetch_thread.start()
+
 def llm_init(llm_type="", api_key="", custom_api="", stream=0):
-    global llm, stream_output
+    global llm, stream_output, CustomLLM, OpenAI
+
+    if CustomLLM == None or OpenAI == None:
+        import_deps()
 
     if stream == "1":
         stream_output = True

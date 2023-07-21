@@ -15,6 +15,13 @@ nnoremap <Plug>AICoding :NvimAICoding<CR>
 nmap co <Plug>AICoding
 xmap co <Plug>AICoding
 
+if has('vim_starting')
+  augroup nvim_ai_start 
+    autocmd!
+    autocmd BufReadPost,BufNewFile * call nvim_ai#init()
+  augroup END
+endif
+
 " 这个也不能保证100%好使
 setlocal autowriteall
 
