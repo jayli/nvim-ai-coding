@@ -1,13 +1,10 @@
 let g:nvim_ai_loading_timer = -1
 let g:nvim_ai_loading_status = -1
 let g:nvim_ai_loading_job = -1
-let g:nvim_ai_loading_chars = ['>','c','3','a','o','y']
+let g:nvim_ai_loading_chars = ['⋮','⋰','⋯','⋱']
 
 " ----------------------------------------------{{
 "  TODO 实现一个在 py3 import 的时候的 loading 效果
-"  timer_start 异步调用不好使
-"  lua new_timer 不好使，vim.loop.new_thread 调用 loading 总是失败
-"  jobstart 也不好用，除非打开一个 terminal
 function! nvim_ai#loading#start(msg)
   let g:nvim_ai_loading_status = 0
   call call("s:Loading", [a:msg])
@@ -24,7 +21,7 @@ function! s:Loading(msg)
     redraw
     "------------timer------------------
     call timer_stop(g:nvim_ai_loading_timer)
-    let g:nvim_ai_loading_timer = timer_start(100, {
+    let g:nvim_ai_loading_timer = timer_start(80, {
           \ -> call(function("s:Loading"), [msg])
           \ })
   else

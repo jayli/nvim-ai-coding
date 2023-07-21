@@ -2,8 +2,9 @@
 # encoding: utf-8
 import threading
 import vim
-# from pynvim import attach
-# nvim = attach('socket', path='/tmp/nvim')
+
+# python async call example
+# https://github.com/roxma/nvim-ascript/blob/abc89587d6d6c83eb28d62669f0111bb77c00d07/autoload/ascript.vim#L32
 
 # 全局llm
 llm = None
@@ -21,23 +22,18 @@ def safe_vim_eval(expression):
     except vim.error:
         return None
 
-def callback():
+def loading_done():
     vim.command("call nvim_ai#loading#done()")
 
 def import_deps():
     global CustomLLM, OpenAI
-    # nvim.async_call("nvim_ai#loading#done()")
-    # nvim.async_call(lambda: vim.command("tabnew"))
-    # vim.eval("")
     from .langchan_llm import CustomLLM
     from .langchan_llm import OpenAI
-    # CustomLLM = Custom_LLM
-    # OpenAI = Open_AI
-    # callback()
+    vim.async_call(loading_done)
     pass
 
 def import_deps_async():
-    # vim.command("call nvim_ai#loading#start('loading...')")
+    vim.command("call nvim_ai#loading#start('ChatGPT 初始化中...')")
     fetch_thread = threading.Thread(target=import_deps, args=())
     fetch_thread.start()
 
