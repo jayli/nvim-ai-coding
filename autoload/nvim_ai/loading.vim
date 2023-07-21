@@ -31,6 +31,9 @@ function! s:Loading(msg)
 endfunction
 
 function! nvim_ai#loading#done()
+  if v:exiting
+    finish
+  endif
   if !exists("g:nvim_ai_loading_status")
     let g:nvim_ai_loading_status = -1
   endif
