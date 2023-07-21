@@ -2,6 +2,7 @@
 # encoding: utf-8
 import threading
 import vim
+import os
 
 # python async call example
 # https://github.com/roxma/nvim-ascript/blob/abc89587d6d6c83eb28d62669f0111bb77c00d07/autoload/ascript.vim#L32
