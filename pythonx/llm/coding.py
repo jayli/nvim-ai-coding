@@ -36,6 +36,7 @@ def import_deps():
 def import_deps_async():
     vim.command("call nvim_ai#loading#start('ChatGPT 初始化中...')")
     fetch_thread = threading.Thread(target=import_deps, args=())
+    fetch_thread.daemon = True
     fetch_thread.start()
 
 def llm_init(llm_type="", api_key="", custom_api="", stream=0):
