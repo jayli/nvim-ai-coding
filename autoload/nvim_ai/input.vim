@@ -104,7 +104,9 @@ function! s:create_nvim_input_window(old_text, callback) abort
         \ 'setlocal completeopt+=noselect',
         \ 'setlocal completeopt-=longest',
         \ 'inoremap <buffer><expr> <CR> nvim_ai#input#handle_cr()',
+        \ 'nnoremap <buffer><expr> <CR> nvim_ai#input#handle_cr()',
         \ 'inoremap <buffer><expr> <ESC> nvim_ai#input#handle_esc()',
+        \ 'nnoremap <buffer><expr> <ESC> nvim_ai#input#handle_esc()',
         \ 'inoremap <buffer><silent><expr> <Tab> nvim_ai#input#clever_tab()',
         \ 'inoremap <buffer><silent><expr> <S-Tab> nvim_ai#input#shift_clever_tab()',
         \ 'autocmd TextChangedI <buffer> call nvim_ai#input#fuzzy_match()',
@@ -320,6 +322,10 @@ function! s:close()
           \ ])
     let s:input_winid = 0
   endif
+endfunction
+
+function! nvim_ai#input#close()
+  call s:close()
 endfunction
 
 function! s:flush()
