@@ -266,7 +266,7 @@ function! s:llm_check()
     redraw
     return v:false
   endif
-  if g:nvim_ai_llm == "openai" && ( g:nvim_ai_apikey == "" && getenv("OPENAI_API_KEY") == "" )
+  if g:nvim_ai_llm == "openai" && ( g:nvim_ai_apikey == "" && getenv("OPENAI_API_KEY") == v:null )
     echom "openai api key 为空，请配置 g:nvim_ai_apikey 或者 $OPENAI_API_KEY"
     redraw
     return v:false

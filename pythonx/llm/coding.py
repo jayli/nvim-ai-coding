@@ -52,7 +52,7 @@ def llm_init(llm_type="", api_key="", custom_api="", stream=0):
 
     if llm_type == "openai":
         open_api_key = os.getenv('OPENAI_API_KEY') or safe_vim_eval('g:nvim_ai_apikey')
-        if open_api_key == "":
+        if open_api_key == "" or open_api_key == None:
             print("OpenAI APIKEY 未定义，请定义 OPENAI_API_KEY")
             return
         llm = OpenAI(openai_api_key=open_api_key, temperature=0.9)
