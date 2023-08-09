@@ -1,7 +1,7 @@
 let g:nvim_ai_loading_timer = -1
 let g:nvim_ai_loading_status = -1
 let g:nvim_ai_loading_job = -1
-let g:nvim_ai_loading_chars = ['⋮','⋰','⋯','⋱']
+let g:nvim_ai_loading_chars = ['⠇','⠋','⠙','⠸','⢰','⣠','⣄']
 
 " ----------------------------------------------{{
 "  TODO 实现一个在 py3 import 的时候的 loading 效果
