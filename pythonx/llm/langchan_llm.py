@@ -46,7 +46,7 @@ def vim_command_handler(script):
     else:
         vim.command("call nvim_ai#insert('" + script + "')")
 
-    time.sleep(0.01)
+    time.sleep(0.012)
 
 def get_delta_from_res(res):
     try:
