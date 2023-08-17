@@ -4,6 +4,7 @@ let s:range = 0
 let s:bufnr = 0
 " 临时变量，给 python 用的
 let g:nvim_ai_range = 0
+let g:nvim_ai_updatetime = &updatetime
 
 function! s:prepare_python()
   if get(g:, 'ai_python3_ready') == 2
@@ -299,6 +300,8 @@ function! nvim_ai#new_line()
 endfunction
 
 function! nvim_ai#stream_first_rendering()
+  let g:nvim_ai_updatetime = &updatetime
+  set updatetime=100
   call s:return_original_window()
   if s:range == 2
     call nvim_ai#delete_selected_lines()
@@ -331,6 +334,7 @@ function! nvim_ai#teardown()
   if s:is_code_warpper(getline(line(".")))
     call setbufline(bufnr(""), line("."), "")
   endif
+  exec "set updatetime=" . string(g:nvim_ai_updatetime)
 endfunction
 
 function! nvim_ai#insert(chunk)
