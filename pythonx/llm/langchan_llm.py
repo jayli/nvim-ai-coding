@@ -41,10 +41,12 @@ def vim_command_handler(script):
                 if tmp_count > 0:
                     vim.command("call nvim_ai#new_line()")
 
-                vim.command("call nvim_ai#insert('" + item + "')")
+                # vim.command("call nvim_ai#insert('" + item + "')")
+                vim.eval("nvim_ai#insert('" + item + "')")
                 tmp_count = tmp_count + 1
     else:
-        vim.command("call nvim_ai#insert('" + script + "')")
+        # vim.command("call nvim_ai#insert('" + script + "')")
+        vim.eval("nvim_ai#insert('" + script + "')")
 
     time.sleep(0.012)
 
