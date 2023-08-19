@@ -6,7 +6,7 @@
 from time import sleep
 import threading
 import requests
-import langchan_llm
+import langchain_llm
 
 
 def fetch(url, callback):
@@ -24,7 +24,7 @@ def response_handler(res):
 
 if __name__ == "__main__":
 
-    print(langchan_llm.OpenAI)
+    print(langchain_llm.OpenAI)
 
     exit()
     print('ok1')

@@ -28,8 +28,8 @@ def loading_done():
 
 def import_deps():
     global CustomLLM, OpenAI
-    from .langchan_llm import CustomLLM
-    from .langchan_llm import OpenAI
+    from .langchain_llm import CustomLLM
+    from .langchain_llm import OpenAI
     vim.async_call(loading_done)
     pass
 
