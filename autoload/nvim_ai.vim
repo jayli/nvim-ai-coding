@@ -340,7 +340,8 @@ endfunction
 function! nvim_ai#insert(chunk)
   let curr_line = getline(line("."))
   let curr_line = curr_line . a:chunk
-  call setline(line("."), curr_line)
+  " setbufline 不会有渲染卡顿，用 setline 会有卡顿，原因未知
+  call setbufline(bufnr(""), line("."), curr_line)
   redraw
 endfunction
 

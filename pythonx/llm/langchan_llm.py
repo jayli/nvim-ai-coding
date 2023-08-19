@@ -55,21 +55,21 @@ def get_delta_from_res(res):
         delta = res["choices"][0]["delta"]
         return delta
     except TypeError as e:
-        # TODO 尚未复现
         errfile = vim.eval("nvim_ai#errlog_file()")
         traceback.print_exc(file=open(errfile,'a'))
         with open(errfile, 'a') as f:
-            f.write('出错的 res\n' + json.dumps(res) + '\n')
+            output_str = "出错的 res: \n\n" + json.dumps(res) + '\n\n'
+            f.write(output_str)
+        return {}
 
 
 def get_valid_json(string):
     res = False
     try:
         res = json.loads(string)
+        return res
     except json.JSONDecodeError as e:
         return False
-
-    return res
 
 
 class CustomLLM(LLM):
@@ -207,7 +207,7 @@ class CustomLLM(LLM):
                 try:
                     vim.command("call nvim_ai#stream_first_rendering()")
 
-                    for chunk in response.iter_content(chunk_size=2500):
+                    for chunk in response.iter_content(chunk_size=3000):
                         chunk_chars = self.get_chars_from_chunk(chunk)
 
                         # TODO: chunk_chars == "" 的情况没有考虑，还不清楚这种情况是否是结束标志
@@ -286,6 +286,9 @@ class CustomLLM(LLM):
                         self.half_chunk_str = ""
                         # print(line)
                         res = get_valid_json(line)
+                        if res == False:
+                            continue
+
                     else:
                         # print("尾部被截断，把片段保存为头部")
                         # print(line)
