@@ -159,7 +159,11 @@ function! s:InputCallback(old_text, new_text)
       echom ""
       return
     endif
-    let prompt = s:get_prompt_new(question)
+    if &filetype == ""
+      let prompt = question
+    else
+      let prompt = s:get_prompt_new(question)
+    endif
     echom "请等待 ChatGPT 的响应..."
     redraw
 
