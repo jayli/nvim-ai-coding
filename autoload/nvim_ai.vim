@@ -328,7 +328,7 @@ endfunction
 " 的原始状态，根据原始状态来恢复，现在是简单粗暴的处理
 function! s:disable_treesitter()
   try
-    call execute("TSBufDisable highlight")
+    call execute("TSDisable highlight")
   catch /^Vim\%((\a\+)\)\=:\(E492\)/
     " do nothing
   endtry
@@ -337,12 +337,28 @@ endfunction
 
 function! s:enable_treesitter()
   try
-    call execute("TSBufEnable highlight")
+    call execute("TSEnable highlight")
   catch /^Vim\%((\a\+)\)\=:\(E492\)/
     " do nothing
   endtry
   call execute("syntax on")
 endfunction
+
+"*******************************************************************************
+"*
+"* This program is free software: you can redistribute it and/or modify
+"* it under the terms of the Apache License, Version 2.0
+"*
+"* This program is distributed in the hope that it will be useful,
+"* but WITHOUT ANY WARRANTY; without even the implied warranty of
+"* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+"* Apache License, Version 2.0 for more details.
+"*
+"* You should have received a copy of the Apache License, Version 2.0
+"* along with this program.  If not, see <https://www.apache.org/licenses/LICENSE-2.0>.
+"*
+"*******************************************************************************
+
 
 function! s:return_original_window()
   let winid = bufwinid(s:bufnr)
