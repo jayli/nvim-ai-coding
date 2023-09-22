@@ -305,6 +305,7 @@ endfunction
 
 function! nvim_ai#stream_first_rendering()
   let g:nvim_ai_updatetime = &updatetime
+  call s:disable_treesitter()
   set updatetime=100
   call s:return_original_window()
   if s:range == 2
@@ -323,6 +324,24 @@ function! nvim_ai#stream_first_rendering()
   endif
 endfunction
 
+" TODO: 这里要记录 treesitter
+" 的原始状态，根据原始状态来恢复，现在是简单粗暴的处理
+function! s:disable_treesitter()
+  try
+    call execute("TSBufDisable highlight")
+  catch /^Vim\%((\a\+)\)\=:\(E492\)/
+    " do nothing
+  endtry
+endfunction
+
+function! s:enable_treesitter()
+  try
+    call execute("TSBufEnable highlight")
+  catch /^Vim\%((\a\+)\)\=:\(E492\)/
+    " do nothing
+  endtry
+endfunction
+
 function! s:return_original_window()
   let winid = bufwinid(s:bufnr)
   call nvim_ai#input#goto_window(winid)
@@ -339,6 +358,7 @@ function! nvim_ai#teardown()
     call setbufline(bufnr(""), line("."), "")
   endif
   exec "set updatetime=" . string(g:nvim_ai_updatetime)
+  call s:enable_treesitter()
 endfunction
 
 function! nvim_ai#insert(chunk)
