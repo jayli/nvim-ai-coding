@@ -332,6 +332,7 @@ function! s:disable_treesitter()
   catch /^Vim\%((\a\+)\)\=:\(E492\)/
     " do nothing
   endtry
+  call execute("syntax off")
 endfunction
 
 function! s:enable_treesitter()
@@ -340,6 +341,7 @@ function! s:enable_treesitter()
   catch /^Vim\%((\a\+)\)\=:\(E492\)/
     " do nothing
   endtry
+  call execute("syntax on")
 endfunction
 
 function! s:return_original_window()
