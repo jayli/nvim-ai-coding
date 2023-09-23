@@ -300,7 +300,7 @@ function! nvim_ai#new_line()
     call setbufline(bufnr(""), line("."), "")
   endif
   call s:nr()
-  redraw
+  " redraw
 endfunction
 
 function! nvim_ai#stream_first_rendering()
@@ -332,7 +332,7 @@ function! s:disable_treesitter()
   catch /^Vim\%((\a\+)\)\=:\(E492\)/
     " do nothing
   endtry
-  call execute("syntax off")
+  " call execute("syntax off")
 endfunction
 
 function! s:enable_treesitter()
@@ -341,7 +341,7 @@ function! s:enable_treesitter()
   catch /^Vim\%((\a\+)\)\=:\(E492\)/
     " do nothing
   endtry
-  call execute("syntax on")
+  " call execute("syntax on")
 endfunction
 
 function! s:return_original_window()
