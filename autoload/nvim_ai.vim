@@ -324,23 +324,28 @@ function! nvim_ai#stream_first_rendering()
   endif
 endfunction
 
+function! s:treesitter_available()
+  try
+    call execute("TSDisable")
+  catch /^Vim\%((\a\+)\)\=:\(E492\)/
+    return v:false
+  endtry
+  return v:true
+endfunction
+
 " TODO: 这里要记录 treesitter
 " 的原始状态，根据原始状态来恢复，现在是简单粗暴的处理
 function! s:disable_treesitter()
-  try
+  if s:treesitter_available()
     call execute("TSDisable highlight")
-  catch /^Vim\%((\a\+)\)\=:\(E492\)/
-    " do nothing
-  endtry
+  endif
   call execute("syntax off")
 endfunction
 
 function! s:enable_treesitter()
-  try
+  if s:treesitter_available()
     call execute("TSEnable highlight")
-  catch /^Vim\%((\a\+)\)\=:\(E492\)/
-    " do nothing
-  endtry
+  endif
   call execute("syntax on")
 endfunction
 
