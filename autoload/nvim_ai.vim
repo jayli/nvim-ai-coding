@@ -326,11 +326,15 @@ endfunction
 
 function! s:treesitter_available()
   try
-    call execute("TSDisable")
+    call execute("TSConfigInfo")
   catch /^Vim\%((\a\+)\)\=:\(E492\)/
     return v:false
   endtry
   return v:true
+endfunction
+
+function! nvim_ai#treesitter_available()
+  return s:treesitter_available()
 endfunction
 
 " TODO: 这里要记录 treesitter

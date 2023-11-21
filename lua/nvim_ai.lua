@@ -34,7 +34,6 @@ local function remove_space(str)
   return string.gsub(str, "%s", "")
 end
 
-
 function Export.fuzzy_search(needle, haystack)
   local l_haystack = remove_space(haystack)
   local l_needle = remove_space(needle)
@@ -76,6 +75,32 @@ end
 function Export.print(msg)
   print(msg)
 end
+
+---------------------------------------------
+-- v:lua.require("nvim_ai").test()
+
+local function treesitter_message()
+  vim.cmd [[message clear]]
+  vim.cmd [[let @a = '']]
+  vim.cmd [[redir @a]]
+  vim.cmd [[TSConfigInfo]]
+  vim.cmd [[redir END]]
+  vim.cmd [[let g:nvim_ai_treesitter_msg = @a]]
+  return vim.g.nvim_ai_treesitter_msg
+end
+
+-- v:lua.require("nvim_ai").treesitter_is_on()
+function Export.treesitter_is_on()
+  if not vim.fn['nvim_ai#treesitter_available']() then
+    return false
+  end
+  local msg = treesitter_message()
+  print('----------')
+  print(msg)
+end
+
+
+---------------------------------------------
 
 return Export 
 
