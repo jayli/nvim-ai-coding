@@ -76,9 +76,7 @@ function Export.print(msg)
   print(msg)
 end
 
----------------------------------------------
 -- v:lua.require("nvim_ai").test()
-
 local function treesitter_message()
   vim.cmd [[message clear]]
   vim.cmd [[let @a = '']]
@@ -95,12 +93,21 @@ function Export.treesitter_is_on()
     return false
   end
   local msg = treesitter_message()
-  print('----------')
-  print(msg)
+  msg = string.gsub(msg, "[%s\n]+", "")
+  msg = string.gsub(msg, "<function%d+>", "true")
+  local success, result = pcall(function()
+    local evalue = "return " .. msg
+    local func = loadstring(evalue)
+    local obj = func()
+    local result = obj.modules.highlight.enable
+    return result
+  end)
+  if success then
+    return result
+  else
+    return false
+  end
 end
-
-
----------------------------------------------
 
 return Export 
 

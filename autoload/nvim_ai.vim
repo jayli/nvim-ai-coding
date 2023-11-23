@@ -5,6 +5,7 @@ let s:bufnr = 0
 " 临时变量，给 python 用的
 let g:nvim_ai_range = 0
 let g:nvim_ai_updatetime = &updatetime
+let g:treesitter_is_on = v:false
 
 function! s:prepare_python()
   if get(g:, 'ai_python3_ready') == 2
@@ -305,7 +306,12 @@ endfunction
 
 function! nvim_ai#stream_first_rendering()
   let g:nvim_ai_updatetime = &updatetime
-  call s:disable_treesitter()
+  if !exists('g:treesitter_is_on')
+    let g:treesitter_is_on = nvim_ai#treesitter_is_on()
+  endif
+  if g:treesitter_is_on
+    call s:disable_treesitter()
+  endif
   set updatetime=100
   call s:return_original_window()
   if s:range == 2
@@ -337,20 +343,22 @@ function! nvim_ai#treesitter_available()
   return s:treesitter_available()
 endfunction
 
+function! nvim_ai#treesitter_is_on()
+  return v:lua.require("nvim_ai").treesitter_is_on()
+endfunction
+
 " TODO: 这里要记录 treesitter
 " 的原始状态，根据原始状态来恢复，现在是简单粗暴的处理
 function! s:disable_treesitter()
   if s:treesitter_available()
     call execute("TSDisable highlight")
   endif
-  call execute("syntax off")
 endfunction
 
 function! s:enable_treesitter()
   if s:treesitter_available()
     call execute("TSEnable highlight")
   endif
-  call execute("syntax on")
 endfunction
 
 function! s:return_original_window()
@@ -369,7 +377,9 @@ function! nvim_ai#teardown()
     call setbufline(bufnr(""), line("."), "")
   endif
   exec "set updatetime=" . string(g:nvim_ai_updatetime)
-  call s:enable_treesitter()
+  if g:treesitter_is_on
+    call s:enable_treesitter()
+  endif
 endfunction
 
 function! nvim_ai#insert(chunk)
