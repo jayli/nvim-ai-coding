@@ -6,6 +6,7 @@ let s:bufnr = 0
 let g:nvim_ai_range = 0
 let g:nvim_ai_updatetime = &updatetime
 let g:treesitter_is_on = v:false
+let g:synmaxcol = &synmaxcol
 
 function! s:prepare_python()
   if get(g:, 'ai_python3_ready') == 2
@@ -312,6 +313,7 @@ function! nvim_ai#stream_first_rendering()
   if g:treesitter_is_on
     call s:disable_treesitter()
   endif
+  set synmaxcol=60
   set updatetime=100
   call s:return_original_window()
   if s:range == 2
@@ -380,6 +382,7 @@ function! nvim_ai#teardown()
   if g:treesitter_is_on
     call s:enable_treesitter()
   endif
+  exec "set synmaxcol=" . string(g:synmaxcol)
 endfunction
 
 function! nvim_ai#insert(chunk)
