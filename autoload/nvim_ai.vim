@@ -4,7 +4,6 @@ let s:range = 0
 let s:bufnr = 0
 " 临时变量，给 python 用的
 let g:nvim_ai_range = 0
-let g:nvim_ai_updatetime = &updatetime
 let g:treesitter_is_on = v:false
 let g:synmaxcol = &synmaxcol
 
@@ -306,15 +305,15 @@ function! nvim_ai#new_line()
 endfunction
 
 function! nvim_ai#stream_first_rendering()
-  let g:nvim_ai_updatetime = &updatetime
-  if !exists('g:treesitter_is_on')
+  try
     let g:treesitter_is_on = nvim_ai#treesitter_is_on()
-  endif
+  catch
+    let g:treesitter_is_on = v:false
+    echom v:exception
+  endtry
   if g:treesitter_is_on
     call s:disable_treesitter()
   endif
-  set synmaxcol=60
-  set updatetime=100
   call s:return_original_window()
   if s:range == 2
     call nvim_ai#delete_selected_lines()
@@ -322,6 +321,7 @@ function! nvim_ai#stream_first_rendering()
   endif
 
   if s:range == 0
+    set synmaxcol=35
     if trim(getline(line("."))) == ""
       call setbufline(s:bufnr, line("."), "")
       return
@@ -378,7 +378,6 @@ function! nvim_ai#teardown()
   if s:is_code_warpper(getline(line(".")))
     call setbufline(bufnr(""), line("."), "")
   endif
-  exec "set updatetime=" . string(g:nvim_ai_updatetime)
   if g:treesitter_is_on
     call s:enable_treesitter()
   endif
@@ -386,10 +385,14 @@ function! nvim_ai#teardown()
 endfunction
 
 function! nvim_ai#insert(chunk)
-  let curr_line = getline(line("."))
-  let curr_line = curr_line . a:chunk
-  " setbufline 不会有渲染卡顿，用 setline 会有卡顿，原因未知
-  call setbufline(bufnr(""), line("."), curr_line)
+  try
+    let curr_line = getline(line("."))
+    let curr_line = curr_line . a:chunk
+    " setbufline 不会有渲染卡顿，用 setline 会有卡顿，原因未知
+    call setbufline(bufnr(""), line("."), curr_line)
+  catch
+    echom v:exception
+  endtry
   redraw
 endfunction
 
