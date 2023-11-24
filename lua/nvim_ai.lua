@@ -109,6 +109,6 @@ function Export.treesitter_is_on()
   end
 end
 
-return Export 
+return Export
 
 -- vim:ts=2:sw=2:sts=2
