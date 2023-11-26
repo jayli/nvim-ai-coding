@@ -84,6 +84,7 @@ local function treesitter_message()
   vim.cmd [[TSConfigInfo]]
   vim.cmd [[redir END]]
   vim.cmd [[let g:nvim_ai_treesitter_msg = @a]]
+  vim.cmd [[message clear]]
   return vim.g.nvim_ai_treesitter_msg
 end
 
