@@ -26,8 +26,18 @@ function loading()
   end)
 end
 
+-- copilot
+-- v:lua.require("nvim_ai").test()
 function Export.test()
-  loading()
+  print('22222222222')
+  local ns = vim.api.nvim_create_namespace('test')
+  local cur_line = vim.fn.line('.')
+  vim.api.nvim_buf_set_extmark(0, ns, cur_line - 1, -1, {
+    virt_lines = {
+      {{'first line\n\rsdf\n\rsdfdsfdsfsdf', 'STS_highlight'}},
+      {{'second line', 'GitSignsAddLnInLine'}}
+    }
+  })
 end
 
 local function remove_space(str)
