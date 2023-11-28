@@ -70,12 +70,12 @@ let g:nvim_ai_llm = 'api2d'
 let g:nvim_ai_apikey = 'xxx'
 
 " 大模型配置（可选）
-let g:nvim_ai_model = "gpt-4"
+let g:nvim_ai_model = "gpt-4-1106-preview"
 ```
 
 API2D 默认支持流式输出，若不想流式输出，配置`g:nvim_ai_stream = 0`。
 
-`g:nvim_ai_model`如果不配置则默认为`gpt-3.5-turbo-0613`，参考值可以配置`gpt-3.5-turbo`或者`gpt-4`等。
+`g:nvim_ai_model`如果不配置则默认为`gpt-3.5-turbo-0613`，参考值可以配置`gpt-3.5-turbo`或者`gpt-4`等（推荐`gpt-4-1106-preview`）。
 
 **4) 自定义 API：**
 
