@@ -26,20 +26,6 @@ function loading()
   end)
 end
 
--- copilot
--- v:lua.require("nvim_ai").test()
-function Export.test()
-  print('22222222222')
-  local ns = vim.api.nvim_create_namespace('test')
-  local cur_line = vim.fn.line('.')
-  vim.api.nvim_buf_set_extmark(0, ns, cur_line - 1, -1, {
-    virt_lines = {
-      {{'first line\n\rsdf\n\rsdfdsfdsfsdf', 'STS_highlight'}},
-      {{'second line', 'GitSignsAddLnInLine'}}
-    }
-  })
-end
-
 local function remove_space(str)
   return string.gsub(str, "%s", "")
 end
@@ -118,6 +104,51 @@ function Export.treesitter_is_on()
   else
     return false
   end
+end
+
+-----------------------copilot---------------------------
+
+local code_block = [[
+  local success, result = pcall(function()
+    local evalue = "return " .. msg
+    local func = loadstring(evalue)
+    local obj = func()
+    local result = obj.modules.highlight.enable
+    return result
+  end)
+]]
+
+
+-- split text into a list
+
+
+
+
+local ns = vim.api.nvim_create_namespace('test')
+
+-- copilot
+-- call v:lua.require("nvim_ai").test()
+function Export.test()
+  print('---begin---')
+  local lines = {}
+  for line in code_block:gmatch("[^\r\n]+") do
+    table.insert(lines, {{line, "Comment"}})
+  end
+  local virt_lines = lines
+  local cur_line = vim.fn.line('.')
+  vim.api.nvim_buf_set_extmark(0, ns, cur_line - 1, vim.fn.col('.'), {
+    id = 1,
+    virt_text_pos = "eol",
+    virt_text = {
+      {"sdf","Normal"},
+      {"xxxxxxxxxxxxxxxxx", "Normal"}
+    },
+    virt_lines = lines
+  })
+end
+
+function Export.delete()
+  vim.api.nvim_buf_del_extmark(0, ns, 1)
 end
 
 return Export
