@@ -20,6 +20,7 @@ if has('vim_starting')
     autocmd!
     autocmd BufReadPost,BufNewFile * call nvim_ai#init()
     autocmd VimLeavePre * call nvim_ai#loading#done()
+    autocmd TextChangedI * call nvim_ai#copilot_invoke()
   augroup END
 endif
 
