@@ -456,6 +456,7 @@ function! nvim_ai#get_history_prompt()
 endfunction
 
 function! nvim_ai#copilot_invoke()
+  return
   " 这里需要增加触发条件
   echom 222222222222
   call v:lua.require("nvim_ai").copilot_block_hint()
