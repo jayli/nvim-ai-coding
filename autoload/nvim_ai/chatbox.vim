@@ -60,23 +60,19 @@ function! nvim_ai#chatbox#open()
     call s:flush()
   endif
   call s:init_chatbox_window()
-  call s:append_lines("asdfa")
+  call s:insert_chunk("asdfa")
   call s:goto_original_window()
 endfunction
 
 " chunk 是一个字符串类型或者数组类型
-function! s:append_lines(chunk)
+function! s:insert_chunk(chunk)
   call s:goto_log_window()
   let max_line = line('$')
   call cursor(line("$"), 1)
   let curr_line = getline(line("."))
-  if type(a:chunk) == type([])
-    let chunk_str = join(a:chunk, "\n")
-
-  endif
   let curr_line = curr_line . a:chunk
   call setbufline(bufnr(""), line("."), curr_line)
-  redraw
+  silent! redraw
 endfunction
 
 function! s:goto_log_bottom()
@@ -143,7 +139,7 @@ function! s:init_chatbox_window()
   let g:chatbox.original_winid = bufwinid(bufnr(""))
 
   " ---------------- 创建 input 窗口 ----------------
-  vertical botright new filetype=none buftype=nofile checkbox_input
+  vertical botright new
   setlocal nonu
   setlocal signcolumn=no
   setlocal filetype=none
@@ -166,8 +162,8 @@ function! s:init_chatbox_window()
   setlocal nonu
   let stitle = ""
   exec 'setl statusline=' . stitle . "" . repeat("—", winwidth(0) - strdisplaywidth(stitle))
-  hi StatusLine guibg=NONE
-  hi StatusLineNC guibg=NONE
+  hi StatusLine guibg=NONE guifg=#666666
+  hi StatusLineNC guibg=NONE guifg=#666666
   let g:chatbox.log_winnr = winnr()
   let g:chatbox.log_bufnr = bufnr("")
   let g:chatbox.log_winid = bufwinid(bufnr(""))
@@ -183,27 +179,9 @@ function! s:init_chatbox_window()
 endfunction
 
 function! nvim_ai#chatbox#request()
-  echom "request:"
-endfunction
-
-function! s:append_msg(content)
-  return
-  if empty(a:content)
-    return
-  endif
-
-  if type(a:content) == type([])
-    let l:content = a:content
-  else
-    let l:content = [a:content]
-  endif
-  let t_content = s:SplitContent(l:content)
-  let l:content = t_content
-  call map(l:content, { key, val -> key == 0 ? '>>> ' . val : val})
-  if s:LogRunning()
-    let l:logfile = get(g:chatbox, "logfile")
-    call writefile(l:content, l:logfile, "Sa")
-  endif
+  call feedkeys("\<ESC>", "i")
+  call timer_start(20, { -> s:insert_chunk('iii') })
+  return ""
 endfunction
 
 function! s:chatbox_running()
