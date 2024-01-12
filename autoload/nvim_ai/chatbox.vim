@@ -148,30 +148,42 @@ function! s:init_chatbox_window()
   setlocal signcolumn=no
   setlocal filetype=none
   setlocal buftype=nofile
+  setlocal wrap
+  setlocal nocursorline
   exec 'setl statusline=%1*\ Input\ Prompt\ %*\ %r%=Depth\ :\ %L\ '
   let g:chatbox.input_winnr = winnr()
   let g:chatbox.input_bufnr = bufnr("")
   let g:chatbox.input_winid = bufwinid(bufnr(""))
+  inoremap <buffer><expr> <CR> nvim_ai#chatbox#request()
 
   " ---------------- 创建 log 窗口 ----------------
   split new
   setlocal buftype=nofile
   setlocal filetype=nofile
   setlocal signcolumn=no
+  setlocal nocursorline
+  setlocal wrap
   setlocal nonu
-  exec 'setl statusline=%1*\ Chatbox\ Output\ %*\ %r%=Depth\ :\ %L\ '
+  let stitle = ""
+  exec 'setl statusline=' . stitle . "" . repeat("—", winwidth(0) - strdisplaywidth(stitle))
+  hi StatusLine guibg=NONE
+  hi StatusLineNC guibg=NONE
   let g:chatbox.log_winnr = winnr()
   let g:chatbox.log_bufnr = bufnr("")
   let g:chatbox.log_winid = bufwinid(bufnr(""))
 
   " ---------------- 初始化input窗口大小 ----------------
   call s:goto_input_window()
-  resize 3
+  resize 2
   call s:goto_original_window()
   return
 
   call s:append_msg(copy(get(g:chatbox, 'init_msg')))
   call s:GotoOriginalWindow()
+endfunction
+
+function! nvim_ai#chatbox#request()
+  echom "request:"
 endfunction
 
 function! s:append_msg(content)
