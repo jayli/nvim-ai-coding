@@ -26,6 +26,7 @@ function! s:init()
     autocmd!
     autocmd QuitPre * call nvim_ai#chatbox#quit()
   augroup END
+  py3 import llm.chatbox as chatbox 
 endfunction
 
 function! s:flush()
@@ -180,7 +181,9 @@ endfunction
 
 function! nvim_ai#chatbox#request()
   call feedkeys("\<ESC>", "i")
-  call timer_start(20, { -> s:insert_chunk('iii') })
+  let prompt_lines = getline(1, '$')
+  py3 chatbox.do_request(vim.eval("prompt_lines"))
+  "call timer_start(20, { -> s:insert_chunk('iii') })
   return ""
 endfunction
 
